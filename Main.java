@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.Map;
 
 public class Main {
 
@@ -25,9 +24,14 @@ public class Main {
 
 	// define a function to call when the child process ends
 	// and block until that function completes
-	BiConsumer<Process,Throwable> writeFinished = (p,t) -> System.out.println("process " + p.getPid() + " finished.");
-	CompletableFuture<Process> onComplete = process.onExit().whenComplete( writeFinished );
-	onComplete.get();
+	process.onExit()
+		.whenComplete( Main::mainFinished )
+		.get();
 
    }
+
+   public static void mainFinished(Process p, Throwable t) {
+      System.out.println("process " + p.getPid() + " finished.");
+   }
+
 }

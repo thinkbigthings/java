@@ -13,9 +13,9 @@ public class Main {
 	ProcessBuilder builder = new ProcessBuilder("ls");
 	builder.redirectErrorStream(true);
 
-	Process process = builder.start();
+	Process childProcess = builder.start();
 
-	try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+	try (BufferedReader in = new BufferedReader(new InputStreamReader(childProcess.getInputStream()))) {
 	 	String line;
 		while ((line = in.readLine()) != null) {
 		    System.out.println(line);
@@ -24,9 +24,9 @@ public class Main {
 
 	// define a function to call when the child process ends
 	// and block until that function completes
-	process.onExit()
-		.whenComplete( Main::mainFinished )
-		.get();
+	childProcess.onExit()
+                    .whenComplete( Main::mainFinished )
+                    .get();
 
    }
 

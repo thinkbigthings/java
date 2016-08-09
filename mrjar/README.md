@@ -22,10 +22,20 @@ source ~/.j9
 rm *.jar build/*
 
 javac -d build -source 1.7 -target 1.7 src/*.java
-javac -d build/META-INF/versions/8 -source 1.8 -target 1.8 src8/*.java
 javac -d build/META-INF/versions/9 -source 9 -target 9 src9/*.java
 
-jar --create --file mrjar.jar --manifest MANIFEST.MF -C build .
+jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
+
+
+TODO try mrjar-specific jar command toptions
+  -f, --file=FILE            The archive file name
+      --release VERSION      Places all following files in a versioned directory
+                             of the jar (i.e. META-INF/versions/VERSION/)
+
+
+
+
+
 
 
 

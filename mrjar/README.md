@@ -2,8 +2,6 @@
 
 http://openjdk.java.net/jeps/238
 
-In MANIFEST.MF
-Multi-Release: true
 
 jar root
   - A.class
@@ -20,6 +18,14 @@ jar root
 
 COMMANDS
 
-javac -d build7 -source 1.7 -target 1.7 src7/*.java
-javac -d build8 -source 1.8 -target 1.8 src8/*.java
-javac -d build9 src9/*.java
+source ~/.j9
+rm *.jar build/*
+
+javac -d build -source 1.7 -target 1.7 src/*.java
+javac -d build/META-INF/versions/8 -source 1.8 -target 1.8 src8/*.java
+javac -d build/META-INF/versions/9 -source 9 -target 9 src9/*.java
+
+jar --create --file mrjar.jar --manifest MANIFEST.MF -C build .
+
+
+

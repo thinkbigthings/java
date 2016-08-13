@@ -18,12 +18,11 @@ jar root
 
 COMMANDS
 
-// this is one way to do it
+// this is one way to do it that works today
 
-source ~/.j9
-rm *.jar build/*
-javac -d build -source 1.7 -target 1.7 src/*.java
-javac -d build/META-INF/versions/9 -source 9 -target 9 src9/*.java
+rm -rf *.jar build/*
+javac -d build -release 7 src/*.java
+javac -d build/META-INF/versions/9 -release 9 src9/*.java
 jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
 
 
@@ -32,12 +31,12 @@ jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C
 // but getting "unrecognized option : --release"
 // probably not implemented for now, so you can use the above technique.
 
-source ~/.j9
-rm *.jar build/*
-javac -d build -source 1.7 -target 1.7 src/*.java
+
+rm -rf *.jar build/*
+javac -d build -release 7 src/*.java
 jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
-rm build/*
-javac -d build -source 9 -target 9 src9/*.java
+rm -rf build/*
+javac -d build -release 9 src9/*.java
 jar --update --file mrjar.jar --release 9 --verbose -C build .
 
 

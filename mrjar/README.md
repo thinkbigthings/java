@@ -20,6 +20,8 @@ COMMANDS
 
 // this is one way to do it that works today
 
+how about src/main/java and src/main/java-9 ?
+
 rm -rf *.jar build/*
 javac -d build -release 7 src/*.java
 javac -d build/META-INF/versions/9 -release 9 src9/*.java

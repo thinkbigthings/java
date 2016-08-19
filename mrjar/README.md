@@ -20,12 +20,11 @@ COMMANDS
 
 // this is one way to do it that works today
 
-how about src/main/java and src/main/java-9 ?
-
 rm -rf *.jar build/*
-javac -d build -release 7 src/*.java
-javac -d build/META-INF/versions/9 -release 9 src9/*.java
+javac -d build -release 7 src/main/java/*.java
+javac -d build/META-INF/versions/9 -release 9 src/main/java-9/*.java
 jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
+java -jar mrjar.jar
 
 
 
@@ -35,10 +34,10 @@ jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C
 
 
 rm -rf *.jar build/*
-javac -d build -release 7 src/*.java
+javac -d build -release 7 src/main/java/*.java
 jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
 rm -rf build/*
-javac -d build -release 9 src9/*.java
+javac -d build -release 9 src/main/java-9/*.java
 jar --update --file mrjar.jar --release 9 --verbose -C build .
 
 

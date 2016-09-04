@@ -43,17 +43,14 @@ long makeRequest = System.currentTimeMillis();
 long constructStream = System.currentTimeMillis();
 
 
-  // TODO java 9 lets you use try with resources a little differently, right?
-
-	try(BufferedReader br = new BufferedReader(new InputStreamReader(responseBody, "UTF-8"))) {
+	BufferedReader br = new BufferedReader(new InputStreamReader(responseBody, "UTF-8"));
+	try(br) {
         	String line = br.readLine();
 		while(line != null) {
 			//System.out.print(".");
 			line = br.readLine();
    		}
 	}
-
-responseBody.close();
 
 long done = System.currentTimeMillis();
 

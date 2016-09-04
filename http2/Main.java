@@ -21,6 +21,7 @@ public class Main {
 
     public static void requestStreaming() throws Exception {
 
+	// gutenberg will lock you out if you hit it too much, proceed with care
 	String mobyDick = "http://www.gutenberg.org/cache/epub/2701/pg2701.txt";
         String principia = "http://www.gutenberg.org/cache/epub/28233/pg28233.txt";
 	String stackOverflow = "http://stackoverflow.com";
@@ -36,18 +37,19 @@ long start = System.currentTimeMillis();
 
 long makeRequest = System.currentTimeMillis();
 
-        InputStream responseBody = response.bodyAsync(HttpResponse.asInputStream()).get();
-	//InputStream responseBody = new ByteArrayInputStream(response.body(asString()).getBytes("UTF-8"));
-
+        //InputStream responseBody = response.bodyAsync(HttpResponse.asInputStream()).get();
+	InputStream responseBody = new ByteArrayInputStream(response.body(asString()).getBytes("UTF-8"));
 
 long constructStream = System.currentTimeMillis();
 
+long firstReadBody;
 
 	BufferedReader br = new BufferedReader(new InputStreamReader(responseBody, "UTF-8"));
 	try(br) {
         	String line = br.readLine();
+ 		firstReadBody = System.currentTimeMillis();
 		while(line != null) {
-			//System.out.print(".");
+System.out.println(line);
 			line = br.readLine();
    		}
 	}
@@ -56,7 +58,8 @@ long done = System.currentTimeMillis();
 
 System.out.println("make request: " + (makeRequest - start));
 System.out.println("construct input stream: " + (constructStream - makeRequest));
-System.out.println("processed input stream: " + (done - constructStream));
+System.out.println("time to start reading stream: " + (firstReadBody - constructStream));
+System.out.println("time to process stream: " + (done - firstReadBody));
 
 
 	System.out.println("Done!");

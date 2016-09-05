@@ -1,6 +1,7 @@
 
 import java.util.concurrent.CompletableFuture;
 
+import java.util.*;
 import java.io.*;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -16,14 +17,14 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         requestStreaming();
+
+	System.out.println("Program done.");
+	System.exit(0);
     }
 
 
     public static void requestStreaming() throws Exception {
 
-	// gutenberg will lock you out if you hit it too much, proceed with care
-	String mobyDick = "http://www.gutenberg.org/cache/epub/2701/pg2701.txt";
-        String principia = "http://www.gutenberg.org/cache/epub/28233/pg28233.txt";
 	String stackOverflow = "http://stackoverflow.com";
 
 	HttpRequest request = HttpRequest
@@ -31,45 +32,29 @@ public class Main {
             .body(noBody()) // this is where you could stream the request body with .bodyAsync(asInputStream())
             .GET();
 
-long start = System.currentTimeMillis();
+	request.response()
+		.bodyAsync(HttpResponse.asInputStream())
+		.thenAccept( s -> readBody(s))
+		.join();
+    }
 
-        HttpResponse response = request.response();
+    public static void readBody(InputStream stream) {
 
-long makeRequest = System.currentTimeMillis();
-
-        //InputStream responseBody = response.bodyAsync(HttpResponse.asInputStream()).get();
-	InputStream responseBody = new ByteArrayInputStream(response.body(asString()).getBytes("UTF-8"));
-
-long constructStream = System.currentTimeMillis();
-
-long firstReadBody;
-
-	BufferedReader br = new BufferedReader(new InputStreamReader(responseBody, "UTF-8"));
-	try(br) {
-        	String line = br.readLine();
- 		firstReadBody = System.currentTimeMillis();
+	try(BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+	       	String line = br.readLine();
 		while(line != null) {
-System.out.println(line);
+			processLine(line);
 			line = br.readLine();
-   		}
+  		}
 	}
+	catch(Exception e) {
+		e.printStackTrace();
+	}
+	System.out.println("Stream processing Done!");
+    }
 
-long done = System.currentTimeMillis();
-
-System.out.println("make request: " + (makeRequest - start));
-System.out.println("construct input stream: " + (constructStream - makeRequest));
-System.out.println("time to start reading stream: " + (firstReadBody - constructStream));
-System.out.println("time to process stream: " + (done - firstReadBody));
-
-
-	System.out.println("Done!");
-
-	// TODO this is hanging too, can exit with System.exit(0);
-        // javadocs has it with .thenCompose() and .thenApply()
-        // and with CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).join()
-	// do I need to do something else with the Future?
-        // see what thread is hanging in visualvm?
-
+    public static void processLine(String line) throws Exception {
+	System.out.print(".");
     }
 
     public static void requestSync() throws Exception {

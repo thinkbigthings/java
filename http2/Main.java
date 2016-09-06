@@ -1,16 +1,13 @@
 
-import java.util.concurrent.CompletableFuture;
-
-import java.util.*;
 import java.io.*;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.URI;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
 import static java.net.http.HttpRequest.*;
 import static java.net.http.HttpResponse.*;
-
-// http://download.java.net/java/jdk9/docs/api/index.html
-// http://download.java.net/java/jdk9/docs/api/java/net/http/HttpRequest.html
 
 public class Main {
 
@@ -68,8 +65,5 @@ public class Main {
     public static void processLine(String line) throws Exception {
         System.out.print(".");
     }
-
 }
-
-
 

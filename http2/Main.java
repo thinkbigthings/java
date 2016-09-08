@@ -14,7 +14,7 @@ public class Main {
 
         String stackOverflow = "http://stackoverflow.com";
         requestStreaming(stackOverflow);
-        requestSync(stackOverflow);
+        // requestSync(stackOverflow);
 
         System.out.println("Program done.");
         System.exit(0);

@@ -1,10 +1,9 @@
 
 import java.io.*;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.*;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 
 import static java.net.http.HttpRequest.*;
 import static java.net.http.HttpResponse.*;
@@ -13,16 +12,18 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        requestStreaming();
+        String stackOverflow = "http://stackoverflow.com";
+        requestStreaming(stackOverflow);
+        requestSync(stackOverflow);
 
         System.out.println("Program done.");
         System.exit(0);
     }
 
-    public static void requestSync() throws Exception {
+    public static void requestSync(String url) throws Exception {
 
         HttpResponse response = HttpRequest
-            .create(new URI("http://www.stackoverflow.com"))
+            .create(new URI(url))
             .body(noBody())
             .GET().response();
 
@@ -32,12 +33,10 @@ public class Main {
         System.out.println("Syncronous processing Done!");
     }
 
-    public static void requestStreaming() throws Exception {
-
-        String stackOverflow = "http://stackoverflow.com";
+    public static void requestStreaming(String url) throws Exception {
 
         HttpRequest request = HttpRequest
-            .create(new URI(stackOverflow))
+            .create(new URI(url))
             .body(noBody()) // this is where you could stream the request body with .bodyAsync(asInputStream())
             .GET();
 

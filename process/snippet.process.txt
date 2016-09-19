@@ -1,0 +1,25 @@
+ProcessBuilder builder = new ProcessBuilder("ls").redirectErrorStream(true);
+
+class ProcessTest {
+	static void mainFinished(Process p, Throwable t) {
+		System.out.println("process " + p.getPid() + " finished.");
+	}
+}
+
+void callProcess() throws Exception {
+	Process childProcess = builder.start();
+	try (BufferedReader in = new BufferedReader(new InputStreamReader(childProcess.getInputStream()))) {
+		String line;
+		while ((line = in.readLine()) != null) {
+		    System.out.println(line);
+		}
+	}
+	childProcess.onExit().whenComplete( ProcessTest::mainFinished ).get();
+}
+
+
+
+
+
+
+

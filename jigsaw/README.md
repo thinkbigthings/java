@@ -14,3 +14,12 @@ ls mlib
 
 Run module directly:
 java -p mlib -m com.greetings
+
+create modular runtime image with my modules:
+jlink --module-path $JAVA_HOME/jmods:mlib --add-modules com.greetings --output greetingsapp
+jlink --strip-debug --compress=2 --module-path $JAVA_HOME/jmods:mlib --add-modules com.greetings --output greetingsapp
+
+
+run with:
+greetingsapp/bin/java -m com.greetings
+

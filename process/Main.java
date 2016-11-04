@@ -31,7 +31,7 @@ public class Main {
    }
 
    public static void mainFinished(Process p, Throwable t) {
-      System.out.println("process " + p.getPid() + " finished.");
+      System.out.println("Child process " + p.getPid() + " finished.");
    }
 
 }

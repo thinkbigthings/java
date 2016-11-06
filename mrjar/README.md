@@ -21,8 +21,8 @@ COMMANDS
 // this is one way to do it that works today
 
 rm -rf *.jar build/*
-javac -d build -release 7 src/main/java/*.java
-javac -d build/META-INF/versions/9 -release 9 src/main/java-9/*.java
+javac -d build --release 7 src/main/java/*.java
+javac -d build/META-INF/versions/9 --release 9 src/main/java-9/*.java
 jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
 java -jar mrjar.jar
 

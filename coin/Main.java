@@ -9,12 +9,17 @@ public class Main {
 		// resources may be declared outside the try statement
 		Reader reader = new InputStreamReader(new FileInputStream("Main.java"));
 		BufferedReader in = new BufferedReader(reader);
+		List<String> lines = new ArrayList<>();
 		try(in) {
 			String line;
 			while ((line = in.readLine()) != null) {
-				System.out.println(line);
+				lines.add(line);
 			}
 		}
+		ListProcessor processor = new ListProcessor() {};
+		int numOriginal = lines.size();
+		int numFlat = processor.flatten(lines).size();
+		System.out.println("number of duplicate lines: " + (numOriginal - numFlat));
 	}
 
 	interface ListProcessor {

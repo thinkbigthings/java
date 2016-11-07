@@ -30,3 +30,9 @@ du -h greetingsapp/
 greetingsapp/bin/java -m com.greetings
 
 
+
+// edit relevant files at once:
+gedit README.md src/com.greetings/com/greetings/Main.java src/org.astro/org/astro/World.java  src/com.greetings/module-info.java src/org.astro/module-info.java
+
+
+

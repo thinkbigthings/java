@@ -25,7 +25,7 @@ javac -d build --release 7 src/main/java/*.java
 javac -d build/META-INF/versions/9 --release 9 src/main/java-9/*.java
 jar --create --file mrjar.jar --manifest MANIFEST.MF --main-class=Application -C build .
 java -jar mrjar.jar
-
+jar --list --file mrjar.jar
 
 
 // this is a java 9 jar command way to do it, but haven't gotten this to work yet
@@ -44,7 +44,7 @@ jar --create --main-class=Application --file mrjar.jar -C build --release 9 -C b
 why keep source for different versions of java in one project?
 - code that changes together should stay together
 - makes more sense to have one project build to one jar instead of multiple projects targeting a single jar
-- chance of defining source/target in subprojects to not be what the mrjar needs
+- reduce risk of defining source/target in subprojects to not be what the mrjar needs
 
 
 

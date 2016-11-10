@@ -49,11 +49,7 @@ public class Main {
     public static void readBody(InputStream stream) {
 
         try(BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
-            String line = br.readLine();
-            while(line != null) {
-                processLine(line);
-                line = br.readLine();
-            }
+            br.lines().forEach(Main::processLine);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -61,7 +57,7 @@ public class Main {
         System.out.println("Stream processing Done!");
     }
 
-    public static void processLine(String line) throws Exception {
+    public static void processLine(String line) {
         System.out.print(".");
     }
 }

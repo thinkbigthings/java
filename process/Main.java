@@ -16,10 +16,7 @@ public class Main {
 	Process childProcess = builder.start();
 
 	try (BufferedReader in = new BufferedReader(new InputStreamReader(childProcess.getInputStream()))) {
-	 	String line;
-		while ((line = in.readLine()) != null) {
-		    System.out.println(line);
-		}
+		in.lines().forEach(System.out::println);
 	}
 
 	// define a function to call when the child process ends

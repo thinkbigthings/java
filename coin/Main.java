@@ -11,11 +11,9 @@ public class Main {
 		BufferedReader in = new BufferedReader(reader);
 		List<String> lines = new ArrayList<>();
 		try(in) {
-			String line;
-			while ((line = in.readLine()) != null) {
-				lines.add(line);
-			}
+			in.lines().forEach(n -> lines.add(n));
 		}
+
 		ListProcessor processor = new ListProcessor() {};
 		int numOriginal = lines.size();
 		int numFlat = processor.flatten(lines).size();
@@ -45,14 +43,3 @@ public class Main {
 	}
 }
 
-// http://stackoverflow.com/questions/7214069/compile-error-cannot-be-used-with-anonymous-classes
-/*
-Main.java:7: error: cannot infer type arguments for ArrayList<E>
-		List<String> strings = new ArrayList<>(){};
-		                                    ^
-  reason: cannot use '<>' with anonymous inner classes
-  where E is a type-variable:
-    E extends Object declared in class ArrayList
-1 error
-ELSPHIM-4170403:~ young1$
-*/

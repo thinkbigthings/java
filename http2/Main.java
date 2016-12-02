@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 
 import static java.net.http.HttpRequest.*;
 import static java.net.http.HttpResponse.*;
+import static java.nio.charset.StandardCharsets.*;
 
 public class Main {
 
@@ -14,7 +15,7 @@ public class Main {
 
         String stackOverflow = "http://stackoverflow.com";
         requestStreaming(stackOverflow);
-        // requestSync(stackOverflow);
+        //requestSync(stackOverflow);
 
         System.out.println("Program done.");
         System.exit(0);
@@ -29,24 +30,23 @@ public class Main {
 
         int responseCode = response.statusCode();
         String responseBody = response.body(asString());
- 
-        System.out.println("Syncronous processing Done!");
+ 	processResponseBody(new ByteArrayInputStream(responseBody.getBytes(UTF_8)));
     }
 
     public static void requestStreaming(String url) throws Exception {
 
         HttpRequest request = HttpRequest
             .create(new URI(url))
-            .body(noBody()) // this is where you could stream the request body with .bodyAsync(asInputStream())
+            .body(noBody()) // this is where you could stream a request body with .bodyAsync(asInputStream())
             .GET();
 
         request.response()
-                .bodyAsync(HttpResponse.asInputStream())
-                .thenAccept( s -> readBody(s))
+                .bodyAsync(asInputStream())
+                .thenAccept( s -> processResponseBody(s))
                 .join();
     }
 
-    public static void readBody(InputStream stream) {
+    public static void processResponseBody(InputStream stream) {
 
         try(BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
             br.lines().forEach(Main::processLine);
@@ -54,7 +54,7 @@ public class Main {
         catch(Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Stream processing Done!");
+        System.out.println("Processing Done!");
     }
 
     public static void processLine(String line) {

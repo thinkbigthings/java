@@ -41,7 +41,7 @@ jar --list --file mrjar.jar
 java -jar mrjar.jar
 
 // see all relevant files at once
-gedit src/main/java/Generator.java src/main/java/Generator.java src/main/java-9/Generator.java
+gedit src/main/java/Generator.java src/main/java/Generator.java src/main/java-9/Generator.java README.md
 
 
 

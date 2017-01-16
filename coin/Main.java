@@ -6,7 +6,7 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
-		// resources may be declared outside the try statement
+		// resources may be declared outside the try statement (if effectively final)
 		Reader reader = new InputStreamReader(new FileInputStream("Main.java"));
 		BufferedReader in = new BufferedReader(reader);
 		List<String> lines = new ArrayList<>();

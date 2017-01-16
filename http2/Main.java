@@ -14,8 +14,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         String stackOverflow = "http://stackoverflow.com";
-        requestStreaming(stackOverflow);
-        //requestSync(stackOverflow);
+        // requestStreaming(stackOverflow);
+        requestSync(stackOverflow);
 
         System.out.println("Program done.");
         System.exit(0);

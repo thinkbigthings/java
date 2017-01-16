@@ -26,13 +26,13 @@ public class Main {
 			return flattenStrings(lists);
 		}
 
-		// @SafeVarargs can be put on a private method
-		// interfaces can have private methods
+		// @SafeVarargs can now be put on private methods (formerly only static or final)
+		// interfaces can now have private methods
 		@SafeVarargs
 		private List<String> flattenStrings(List<String>... lists) {
 
-			// anonymous classes can use type inference
-			// single underscore now can NOT be used as variable name
+			// anonymous classes can now use type inference
+			// single underscore can NO LONGER be used as variable name
 			Set<String> _strings = new HashSet<>(){};
 			for(List<String> list : lists) {
 				_strings.addAll(list);

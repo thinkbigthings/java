@@ -1,12 +1,12 @@
 
 import java.io.*;
-import java.net.http.*;
+import jdk.incubator.http.*;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static java.net.http.HttpRequest.*;
-import static java.net.http.HttpResponse.*;
+import static jdk.incubator.http.HttpRequest.*;
+import static jdk.incubator.http.HttpResponse.*;
 import static java.nio.charset.StandardCharsets.*;
 
 public class Main {
@@ -23,27 +23,39 @@ public class Main {
 
     public static void requestSync(String url) throws Exception {
 
-        HttpResponse response = HttpRequest
-            .create(new URI(url))
-            .body(noBody())
-            .GET().response();
+        // clients are immutable and thread safe
+        HttpClient client = HttpClient.newHttpClient();
 
-        int responseCode = response.statusCode();
-        String responseBody = response.body(asString());
- 	processResponseBody(new ByteArrayInputStream(responseBody.getBytes(UTF_8)));
+        // GET
+        HttpResponse<String> response = client.send(
+            HttpRequest
+                .newBuilder(new URI(url))
+                .GET()
+                .build(),
+            BodyHandler.asString()
+        );
+
+        int statusCode = response.statusCode();
+ 	processResponseBody(response.body());
     }
 
     public static void requestStreaming(String url) throws Exception {
 
-        HttpRequest request = HttpRequest
-            .create(new URI(url))
-            .body(noBody()) // this is where you could stream a request body with .bodyAsync(asInputStream())
-            .GET();
+        HttpClient client = HttpClient.newHttpClient();
 
-        request.response()
-                .bodyAsync(asInputStream())
-                .thenAccept( s -> processResponseBody(s))
-                .join();
+        CompletableFuture<HttpResponse<String>> response = client.sendAsync(
+            HttpRequest
+                .newBuilder(new URI(url))
+                .GET()
+                .build(),
+            BodyHandler.asString()
+        );
+
+        response.thenAccept( s -> processResponseBody(s.body())).join();
+    }
+
+    public static void processResponseBody(String body) {
+        processResponseBody(new ByteArrayInputStream(body.getBytes(UTF_8)));
     }
 
     public static void processResponseBody(InputStream stream) {

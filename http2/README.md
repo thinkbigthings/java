@@ -1,8 +1,9 @@
 
 package was java.net.http, was moved to package jdk.incubator.http (as of EA b149)
 
-javadocs are downloaded with regular javadocs and available at
-docs/jre/api/incubator/httpclient/spec/index.html
+// javadoc is NOT in regular javadoc
+// but still built with regular javadoc and available at
+http://download.java.net/java/jdk9/docs/jre/api/incubator/httpclient/spec/index.html
 
 // to build with incubator module, need to explicitly add it
 javac --add-modules jdk.incubator.httpclient Main.java

@@ -32,7 +32,7 @@ greetingsapp/bin/java -m com.greetings
 
 
 // edit relevant files at once:
-gedit src/com.greetings/com/greetings/Main.java src/org.astro/org/astro/World.java  src/com.greetings/module-info.java src/org.astro/module-info.java README.md &
+gedit src/com.greetings/com/greetings/Main.java src/org.astro/org/astro/DefaultAstroHelloWorldNameMessageStringProvider.java  src/com.greetings/module-info.java src/org.astro/module-info.java README.md &
 
 
 

@@ -1,6 +1,6 @@
 package org.astro;
 
-public class World {
+public class DefaultAstroHelloWorldNameMessageStringProvider {
     public static String name() {
         return "world";
     }

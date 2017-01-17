@@ -13,6 +13,9 @@ public class Main {
 		try(in) {
 			in.lines().forEach(n -> lines.add(n));
 		}
+		catch(Exception ex) {
+			System.out.println("Don't just swallow exceptions, please.");
+		}
 
 		ListProcessor processor = new ListProcessor() {};
 		int numOriginal = lines.size();

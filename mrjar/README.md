@@ -42,7 +42,7 @@ java -jar mrjar.jar
 ~/opt/jre1.7.0_80/bin/java -jar mrjar.jar
 
 // see all relevant files at once
-gedit src/main/java/Generator.java src/main/java/Generator.java src/main/java-9/Generator.java README.md
+gedit src/main/java/Generator.java src/main/java/Generator.java src/main/java-9/Generator.java README.md &
 
 
 

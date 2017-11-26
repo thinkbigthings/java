@@ -11,7 +11,7 @@ public class Main {
 		BufferedReader in = new BufferedReader(reader);
 		List<String> lines = new ArrayList<>();
 		try(in) {
-			in.lines().forEach(n -> lines.add(n));
+			in.lines().forEach(lines::add);
 		}
 		catch(Exception ex) {
 			System.out.println("Don't just swallow exceptions, please.");

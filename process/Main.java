@@ -6,7 +6,7 @@ public class Main {
 
    public static void main(String[] args) throws Exception {
 
-	System.out.println("Hello Java 9! This process PID is " + ProcessHandle.current().getPid());
+	System.out.println("Hello Java 9! This process PID is " + ProcessHandle.current().pid());
 
 	ProcessBuilder builder = new ProcessBuilder("ls");
 	builder.redirectErrorStream(true);
@@ -26,7 +26,7 @@ public class Main {
    }
 
    public static void mainFinished(Process p, Throwable t) {
-      System.out.println("Child process " + p.getPid() + " finished.");
+      System.out.println("Child process " + p.pid() + " finished.");
    }
 
 }

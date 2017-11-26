@@ -21,7 +21,7 @@ java -p mlib -m com.greetings
 
 // create modular runtime image with my modules
 // jlink --module-path $JAVA_HOME/jmods:mlib --add-modules com.greetings --output greetingsapp
-jlink --strip-debug --compress=2 --module-path $JAVA_HOME/jmods:mlib --add-modules com.greetings --output greetingsapp
+jlink --strip-debug --compress=2 --module-path $JAVA_HOME/jmods:mlib --add-modules com.greetings --launcher hello=com.greetings/com.greetings.Main --output greetingsapp
 
 // how big is it?
 du -h greetingsapp/
@@ -29,7 +29,8 @@ du -h greetingsapp/
 // run with:
 greetingsapp/bin/java -m com.greetings
 
-
+// or run the launch command (from --launcher)
+greetingsapp/bin/hello 
 
 // edit relevant files at once:
 gedit src/com.greetings/com/greetings/Main.java src/org.astro/org/astro/DefaultAstroHelloWorldNameMessageStringProvider.java  src/com.greetings/module-info.java src/org.astro/module-info.java README.md &

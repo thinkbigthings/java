@@ -3,6 +3,7 @@
 
 import java.util.*
 import java.io.*
+import java.nio.file.*
 import java.math.*
 import java.net.*
 import java.util.concurrent.*
@@ -11,9 +12,7 @@ import java.util.regex.*
 
 
 
-void ls() {
-  File cur = new File(".");
-  for(String s : cur.list())
-  System.out.println(s);
+void ls() throws IOException {
+  Files.list(Paths.get(".")).forEach(System.out::println);
 }
 

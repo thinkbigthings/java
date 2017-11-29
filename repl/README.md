@@ -5,13 +5,14 @@
 ## To try out a library like Google Guava:
 
 ```
-wget http://central.maven.org/maven2/com/google/guava/guava/19.0/guava-19.0.jar
-jshell --class-path guava-19.0.jar 
+wget http://central.maven.org/maven2/com/google/guava/guava/23.5-jre/guava-23.5-jre.jar
+jshell --class-path guava-23.5-jre.jar 
 ```
 then inside jshell, run 
 
 ```
 /open guava-test.jsh
+/edit
 ```
 
 ## To run Java code like a script
@@ -28,3 +29,8 @@ We can load some definitions so they are are always present (even after /reset).
 jshell --startup bash.jsh
 ```
 
+then inside jshell, run 
+
+```
+ls()
+```

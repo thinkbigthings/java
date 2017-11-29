@@ -6,4 +6,5 @@ multiMap.put("a", "1")
 multiMap.put("a", "2")
 multiMap.put("a", "1")
 multiMap.get("a")
-
+multiMap.remove("a", "1")
+multiMap.get("a")

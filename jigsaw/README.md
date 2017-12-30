@@ -16,7 +16,7 @@ jar --create --file=mlib/org.astro-1.0.jar --module-version=1.0 -C mods/org.astr
 jar --create --file=mlib/com.greetings.jar --main-class=com.greetings.Main -C mods/com.greetings .
 ls mlib
 
-// Run module directly
+// Run module directly (like java -jar)
 java -p mlib -m com.greetings
 
 // create modular runtime image with my modules

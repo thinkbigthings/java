@@ -8,7 +8,7 @@ public class Generator {
         Set<String> strings = new HashSet<String>();
         strings.add("Java");
         strings.add("8");
-        return strings;
+        return java.util.Collections.unmodifiableSet(strings);
     }
 }
 

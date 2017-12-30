@@ -16,7 +16,7 @@ jar root
         - 10
            - A.class
 
-
+Class file structure is in the specification...
 There is still uncertainty about how source code will be structured:
 multi module project (maven/etc module not JPMS), or multiple versions of Java in one project?
 http://in.relation.to/2017/02/13/building-multi-release-jars-with-maven/
@@ -49,7 +49,7 @@ java -jar mrjar.jar
 ~/opt/jdk1.8.0_141/bin/java -jar mrjar.jar
 
 // see all relevant files at once
-gedit MANIFEST.MF src/main/java/Generator.java src/main/java/Generator.java src/main/java-9/Generator.java README.md &
+gedit MANIFEST.MF src/main/java/Application.java src/main/java/Generator.java src/main/java/Generator.java src/main/java-9/Generator.java README.md &
 
 
 

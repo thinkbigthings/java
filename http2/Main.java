@@ -13,9 +13,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        String stackOverflow = "http://stackoverflow.com";
-        // requestStreaming(stackOverflow);
-        requestSync(stackOverflow);
+        String stackOverflow = "https://stackoverflow.com";
+        requestStreaming(stackOverflow);
+        // requestSync(stackOverflow);
 
         System.out.println("Program done.");
         System.exit(0);
@@ -36,7 +36,7 @@ public class Main {
         );
 
         int statusCode = response.statusCode();
- 	processResponseBody(response.body());
+ 	    processResponseBody(response.body());
     }
 
     public static void requestStreaming(String url) throws Exception {

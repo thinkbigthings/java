@@ -1,6 +1,14 @@
 
 # Experiments with Java 9's REPL
 
+## To run code using libraries you use in your project:
+
+TODO find a way to get the dependency and project libraries on a classpath string
+and pass them to jshell. Would like to use maven and gradle.
+Would also like this to work if you have war packagings on the cp.
+
+https://stackoverflow.com/questions/47705036/in-jshell-how-to-import-classpath-from-a-maven-project
+
 
 ## To try out a library like Google Guava:
 

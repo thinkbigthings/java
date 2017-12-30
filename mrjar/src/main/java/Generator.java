@@ -7,7 +7,7 @@ public class Generator {
     public Set<String> createStrings() {
         Set<String> strings = new HashSet<String>();
         strings.add("Java");
-        strings.add("7");
+        strings.add("8");
         return strings;
     }
 }

@@ -1,3 +1,3 @@
 # java9
 
-These are experiments with Java 9 features.
+This is a set of examples using with Java 9 features.

@@ -16,7 +16,6 @@ public class Main {
 			// Never swallow exceptions, right?
 		}
 
-        // ListProcessor is an interface. See what I did there?
 		ListProcessor processor = new ListProcessor() {};
 		
 		int numOriginal = lines.size();

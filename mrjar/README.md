@@ -16,7 +16,7 @@ jar root
         - 10
            - A.class
 
-Class file structure is in the specification...
+Jar file structure is in the specification...
 There is still uncertainty about how source code will be structured:
 multi module project (maven/etc module not JPMS), or multiple versions of Java in one project?
 http://in.relation.to/2017/02/13/building-multi-release-jars-with-maven/

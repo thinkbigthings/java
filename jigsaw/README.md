@@ -26,7 +26,7 @@ jlink --strip-debug --compress=2 --module-path $JAVA_HOME/jmods:mlib --add-modul
 // how big is it?
 du -h greetingsapp/
 
-// run with:
+// run it as a java application
 greetingsapp/bin/java -m com.greetings
 
 // or run the launch command (from --launcher)

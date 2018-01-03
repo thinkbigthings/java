@@ -1,5 +1,5 @@
-// a startup file completely replaces the default
-// so need to bring in the default imports yourself
+// a startup file completely replaces the default imports
+// so need to bring in the imports yourself
 
 import java.util.*
 import java.io.*

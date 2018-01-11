@@ -30,11 +30,11 @@ public class Main {
 		}
 
 		// Coin 2: @SafeVarargs can now be put on private methods (formerly only static or final)
-		// Coin 3: interfaces can now have private methods
+		// Coin 3: interfaces can now have private methods (no ambiguity if extending with same method)
 		@SafeVarargs
 		private List<String> flattenStrings(List<String>... lists) {
 
-			// Coin 4: anonymous classes can now use type inference
+			// Coin 4: anonymous classes can now use inference for generic types
 			// Coin 5: single underscore can NO LONGER be used as variable name
 			Set<String> _strings = new HashSet<>(){};
 			for(List<String> list : lists) {

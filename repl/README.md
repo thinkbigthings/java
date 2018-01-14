@@ -1,7 +1,6 @@
 
 # Experiments with Java 9's REPL
 
-
 ## To try out a library like Google Guava:
 
 ```
@@ -36,10 +35,8 @@ ls()
 ```
 
 
-## TODO To run code using libraries you use in your project:
+## To run JShell from within your IDE:
 
-TODO find a way to get the dependency and project libraries on a classpath string
-and pass them to jshell. Would like to use maven and gradle.
+Add your own project as a library so IntelliJ can access it from JShell
 
-https://stackoverflow.com/questions/47705036/in-jshell-how-to-import-classpath-from-a-maven-project
 

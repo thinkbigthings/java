@@ -40,3 +40,16 @@ ls()
 Add your own project as a library so IntelliJ can access it from JShell
 
 
+## To specify JVM args
+
+launch with -J[args]
+
+For example, launch with jshell -J-Xmx2g
+
+note that now you can do something like this:
+jshell> new int[1000000000];
+
+(maybe for a fast-running script, you can specify the Epsilon GC from Java 11)
+
+
+

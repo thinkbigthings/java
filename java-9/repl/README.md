@@ -1,16 +1,22 @@
 
 # Experiments with Java 9's REPL
 
+
+## To run jshell with your own project classes and dependencies
+
+https://github.com/johnpoth/jshell-maven-plugin
+
+https://github.com/bitterfox/jshell-gradle-plugin
+
 ## To try out a library like Google Guava:
 
 ```
 wget http://central.maven.org/maven2/com/google/guava/guava/23.5-jre/guava-23.5-jre.jar
-jshell --class-path guava-23.5-jre.jar 
+jshell --class-path guava-23.5-jre.jar guava-test.sh
 ```
 then inside jshell, run 
 
 ```
-/open guava-test.jsh
 /edit
 ```
 
@@ -34,6 +40,10 @@ then inside jshell, run
 ls()
 ```
 
+## Can run Java code to interactively work with remote systems
+
+One good example is interacting with a web API that uses Protobuf
+We can build objects and make network calls from the command line
 
 ## To run JShell from within your IDE:
 

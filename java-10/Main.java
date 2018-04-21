@@ -1,6 +1,8 @@
 
 import java.util.*;
 import java.util.function.*;
+import java.time.*;
+import static java.util.stream.Collectors.*;
 
 /**
 
@@ -44,17 +46,53 @@ public class Main {
         System.out.println(person.name + " aged " + person.age);
 
 
+        // what if you want to process a stream of data and retain the original with its processed version?
+        // here's a Java 8 approach
+        // this only works with two values, what if you wanted to maintain a stream of three processed values? Nothing built-in anymore!
+        names.stream()
+            .map(n -> new AbstractMap.SimpleEntry<String,Integer>(n, n.length()))
+            .filter(t -> t.getValue() > 3)
+            .map(t -> t.getKey())
+            .forEach(System.out::println);
+            
+            
+        // TODO this makes a stream of anonymous subclasses... are they bound to the outer "this" with a risk of memory leaks?
+        // could replicate with  public static class Generator { private byte[] lotsOfHiddenStuff = new byte[5_000_000];
+        // if that's the class that creates anonymous subclasses and returns it.
+        
+        // TODO another example of streaming and maintaining data... 
+        // maybe streaming calculated points, and maintain threshold detection of domain and range?
+
         // easier to make tuple types, 
         // can pass multiple values through the Stream API in a type safe way
         // this is impossible before Java 10
+
         names.stream()
             .map(n -> new Object() {
                     String word = n;
                     int length = n.length();
+                    Instant processedTime = Instant.now();
                 })
             .filter(t -> t.length > 3)
             .map(t -> t.word)
             .forEach(System.out::println);
+
+        
+        // we can collect the anonymous type to a Set
+        // the destination set needs to be "var" instead of "Set" 
+        // otherwise it will think you mean Set<Object> and you'll access to the type
+        
+        System.out.println("collecting");
+        var longNames = names.stream()
+            .map(n -> new Object() {
+                    String word = n;
+                    int length = n.length();
+                    Instant processedTime = Instant.now();
+                })
+            .filter(t -> t.length > 3)
+            .collect(toSet());
+        System.out.println(longNames.iterator().next().processedTime);
+
 
         // "&" is an intersection type
         // we can do mixins with interfaces, impossible before Java 10
@@ -64,6 +102,14 @@ public class Main {
         duck.waddle();
         
 
+        // can work with intersection types before Java 10, but var allows you to ASSIGN an intersection type 
+        // (without declaring an explicit interface that extends both)
+        
+        // what are some practical examples, though?
+        // http://iteratrlearning.com/java/generics/2016/05/12/intersection-types-java-generics.html
+        
+        
+        
         // TODO try other mixin ideas from above links
         Mallard m = new Mallard();
         

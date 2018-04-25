@@ -47,8 +47,8 @@ public class Main {
 
 
         // what if you want to process a stream of data and retain the original with its processed version?
-        // here's a Java 8 approach
-        // this only works with two values, what if you wanted to maintain a stream of three processed values? Nothing built-in anymore!
+        // here's a Java 8 approach. This works but only with two values
+        // what if you wanted to maintain a stream of three processed values? Nothing built-in anymore!
         names.stream()
             .map(n -> new AbstractMap.SimpleEntry<String,Integer>(n, n.length()))
             .filter(t -> t.getValue() > 3)
@@ -56,9 +56,7 @@ public class Main {
             .forEach(System.out::println);
             
             
-        // TODO this makes a stream of anonymous subclasses... are they bound to the outer "this" with a risk of memory leaks?
-        // could replicate with  public static class Generator { private byte[] lotsOfHiddenStuff = new byte[5_000_000];
-        // if that's the class that creates anonymous subclasses and returns it.
+
         
         // TODO another example of streaming and maintaining data... 
         // maybe streaming calculated points, and maintain threshold detection of domain and range?
@@ -80,7 +78,9 @@ public class Main {
         
         // we can collect the anonymous type to a Set
         // the destination set needs to be "var" instead of "Set" 
-        // otherwise it will think you mean Set<Object> and you'll access to the type
+        // otherwise it will think you mean Set<Object> and you'll lose access to the type
+        // Note that this is LOCAL type inference... 
+        // the type of an anonymous subclass can't be in the return signature of a method
         
         System.out.println("collecting");
         var longNames = names.stream()
@@ -93,6 +93,16 @@ public class Main {
             .collect(toSet());
         System.out.println(longNames.iterator().next().processedTime);
 
+        // this makes a stream of anonymous subclasses
+        // anonymous subclasses are they bound to their outer "this" (in this case FancyFilter)
+        // and risk of memory leaks, so be wary about retaining or returning objects of anonymous subclasses
+        List bigCollection = new ArrayList();
+        for(int i=0; i < 1000; i++) {
+            bigCollection.addAll(new FancyFilter().suspiciousFilter(names));
+        }
+        
+        
+        
 
         // "&" is an intersection type
         // we can do mixins with interfaces, impossible before Java 10
@@ -174,4 +184,22 @@ public class Main {
        static void create() {}
     }
 
+
+    public static class FancyFilter { 
+        
+        private byte[] lotsOfHiddenStuff = new byte[5_000_000];
+        
+        public List suspiciousFilter(List<String> names) {
+            var longNames = names.stream()
+                                .map(n -> new Object() {
+                                        String word = n;
+                                        int length = n.length();
+                                        Instant processedTime = Instant.now();
+                                    })
+                                .filter(t -> t.length > 3)
+                                .collect(toList());
+            return longNames;
+        }
+    }
+        
 }

@@ -34,7 +34,7 @@ public class Main {
     public static void requestSync(String url) throws Exception {
 
         // clients are immutable and thread safe
-        HttpClient client = HttpClient.newHttpClient();
+        final HttpClient client = HttpClient.newHttpClient();
 
         // GET
         HttpResponse<String> response = client.send(
@@ -51,7 +51,7 @@ public class Main {
 
     public static void requestStreaming(String url) throws Exception {
 
-        HttpClient client = HttpClient.newHttpClient();
+        final HttpClient client = HttpClient.newHttpClient();
 
         CompletableFuture<HttpResponse<String>> response = client.sendAsync(
             HttpRequest

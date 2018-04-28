@@ -56,11 +56,6 @@ public class Main {
             .forEach(System.out::println);
             
             
-
-        
-        // TODO another example of streaming and maintaining data... 
-        // maybe streaming calculated points, and maintain threshold detection of domain and range?
-
         // easier to make tuple types, 
         // can pass multiple values through the Stream API in a type safe way
         // this is impossible before Java 10
@@ -94,61 +89,62 @@ public class Main {
         System.out.println(longNames.iterator().next().processedTime);
 
         // this makes a stream of anonymous subclasses
-        // anonymous subclasses are they bound to their outer "this" (in this case FancyFilter)
-        // and risk of memory leaks, so be wary about retaining or returning objects of anonymous subclasses
+        // anonymous subclasses are bound to their outer "this" (in this case FancyFilter)
+        // and carry risk of memory leaks, so be wary about retaining or returning objects of anonymous subclasses
         List bigCollection = new ArrayList();
-        for(int i=0; i < 1000; i++) {
+        for(int i=0; i < 100; i++) {
             bigCollection.addAll(new FancyFilter().suspiciousFilter(names));
         }
         
         
-        
 
-        // "&" is an intersection type
-        // we can do mixins with interfaces, impossible before Java 10
+
+        // "&" helps define an intersection type
+        // can work with intersection types before Java 10, 
+        // but var allows you to ASSIGN an intersection type  in a type-safe way
+        // (without declaring an explicit interface that extends both)
         // Note, broken in JShell 10 (https://bugs.openjdk.java.net/browse/JDK-8199907)
-        var duck = (Quacks & Waddles) Mixin::create;
+        var duck = (Quacks & Waddles) Mixin::create; // look! no classes!
         duck.quack();
         duck.waddle();
         
-
-        // can work with intersection types before Java 10, but var allows you to ASSIGN an intersection type 
-        // (without declaring an explicit interface that extends both)
+        doDucklikeThings(duck);
         
-        // what are some practical examples, though?
-        // http://iteratrlearning.com/java/generics/2016/05/12/intersection-types-java-generics.html
-        
-        
-        
-        // TODO try other mixin ideas from above links
-        Mallard m = new Mallard();
-        
-        // this is one way to do it. What does this get you over composition?
-        
-
-        // need functional interface to do this trick, otherwise can't cast object to the new interface
-        
-        var v = (MallardExtension & Bird) () -> m;
+      
+        // what else can we do with intersection types? It's an alternative way to compose behavior
+        // need functional interface (single method interfaces) to do this trick, otherwise can't cast to the new interface        
+        FlyingMallard m = new FlyingMallard();
+        var v = (BirdExtension & Mallard) () -> m;
         v.flyPlus();
         
-        // what if you don't delegate and just extend Bird? 
-        // you can cast as just the extension method and assign to extension interface, but extension interface needs to extend the original interface
-        // it's clearer to extend just the delegate and keep the type information here at the assignment where you read it
-        // also MallardExtension isn't a functional interface if it extends Bird, so assignment won't work
-      //  MallardExtension me = (MallardExtension & Bird) () -> m;
-      //   me.flyPlus();
+
+        // what are some practical examples, though?
+        // example with DataInput, Closeable: 
+        // http://iteratrlearning.com/java/generics/2016/05/12/intersection-types-java-generics.html
+        // you can do this without var, var just reduces boilerplate which is a common complaint about Java
         
     }
+ 
+       
+    public static <T extends Quacks & Waddles> void doDucklikeThings(T ducklike) {
+        ducklike.quack();
+        ducklike.waddle();
+    }
     
-    public static final class Mallard implements Bird {
-        public void fly() { System.out.println("fly"); }
+    public interface Mallard {
+        public default void doMallardStuff() {
+            System.out.println("doMallardStuff");
+        }
+    }
+    
+    public static final class FlyingMallard implements Bird, Mallard {
+        public void fly() { System.out.println("Mallard fly"); }
         public void doStuff(){}
     }
     
     // if we implement Bird but don't delegate fly(), you get the fly() implementation of the default Bird interface
     // but still can't override it here. Needs single method to satisfy functional interface
-    interface MallardExtension extends BirdDelegate {
-       // void toStringCustom() { System.out.println("custom fly"); }
+    interface BirdExtension extends BirdDelegate {
         default void flyPlus() {
             delegate().fly();
             System.out.println("and more");
@@ -162,15 +158,12 @@ public class Main {
     
     interface Bird {
         default void fly() {}
-        //void doStuff();
     }
     
     interface Quacks extends Mixin {
        default void quack() {
            System.out.println("Quack");
        }
-       // this would throw a compiler error, all methods must be implemented
-       //String unimplemented();
     }
 
     interface Waddles extends Mixin {

@@ -4,6 +4,7 @@ import java.util.function.*;
 import java.time.*;
 import static java.util.stream.Collectors.*;
 
+
 /**
 
 http://openjdk.java.net/jeps/286
@@ -28,11 +29,12 @@ public class Main {
         // but this is legal
         var f = (IntUnaryOperator) (int a) -> a*a;
         System.out.println(f.applyAsInt(2));
-        
+
+        // TODO actually put @Nonnull on a lambda parameter
         var isEven = (Predicate<Integer>) x -> x%2==0;  // legal with Java 10
         Predicate<Integer> isEven2 = (var x) -> x%2==0; // legal with Java 11 (var on lambda parameter)
 
-        
+
         // no val/let, can use "final var"
 
         // can declare anonymous classes and use a new scoped type
@@ -112,7 +114,9 @@ public class Main {
         
       
         // what else can we do with intersection types? It's an alternative way to compose behavior
-        // need functional interface (single method interfaces) to do this trick, otherwise can't cast to the new interface        
+        // need functional interface (single method interfaces) to do this trick, otherwise can't cast to the new interface
+        // this could be helpful if have only one place you need this specific combination of functionality,
+        // maybe in the context of breaking apart a large method and reducing number of method arguments to sub-calls
         FlyingMallard m = new FlyingMallard();
         var v = (BirdExtension & Mallard) () -> m;
         v.flyPlus();
@@ -122,18 +126,36 @@ public class Main {
         // example with DataInput, Closeable: 
         // http://iteratrlearning.com/java/generics/2016/05/12/intersection-types-java-generics.html
         // you can do this without var, var just reduces boilerplate which is a common complaint about Java
-        
+
+        // TODO can't do this with List because list doesn't have default method implementations, you'd need to extend with defaults
+        // works best with stateless collections of functionality (an interface containing only pure functions, for example)
+        List<String> alphabet = List.of("a", "b", "c");
+        var alphaPlus = (ListExtension & List) () -> alphabet;
+        System.out.println(alphaPlus.hasItems());
     }
- 
-       
+
+    public interface ListExtension extends ListDelegate {
+        default boolean hasItems() {
+            return ! delegate().isEmpty();
+        }
+    }
+
+    @FunctionalInterface
+    interface ListDelegate {
+        List delegate();
+    }
+
     public static <T extends Quacks & Waddles> void doDucklikeThings(T ducklike) {
         ducklike.quack();
         ducklike.waddle();
     }
-    
+
     public interface Mallard {
+        public default void beMallardy() {
+            System.out.println("I'm a Mallard!");
+        }
         public default void doMallardStuff() {
-            System.out.println("doMallardStuff");
+            System.out.println("I do Mallard stuff!");
         }
     }
     

@@ -16,12 +16,7 @@ public class Main {
         // TODO stream request and response, all async
         // does the streaming method wait for the stream to finish before returning?
         // https://download.java.net/java/early_access/jdk11/docs/api/java.net.http/java/net/http/HttpRequest.BodyPublishers.html
-        
-        // TODO with Flow API!
-        
-        // TODO add authenticator and other more complex behavior
 
-        // TODO use own server so I can do this without an internet connection
         
         String stackOverflow = "https://stackoverflow.com";
         requestStreaming(stackOverflow);

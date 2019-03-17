@@ -1,4 +1,7 @@
 
+
+
+import java.lang.annotation.*;
 import java.util.*;
 import java.util.function.*;
 import java.time.*;
@@ -15,6 +18,7 @@ https://gist.github.com/benjiman/a8945f378691f4c1d258a12bed825ec2
 
 */
 public class Main {
+
     public static void main(String[] args) {
     
         // can simplify simple declarations, but that's just convenience, doesn't change much
@@ -30,13 +34,14 @@ public class Main {
         var f = (IntUnaryOperator) (int a) -> a*a;
         System.out.println(f.applyAsInt(2));
 
-        // TODO actually put @Nonnull on a lambda parameter
+        // you can put @NotNull on a lambda parameter
+        // annotations can be applied to local variables and lambda formals without losing brevity
         var isEven = (Predicate<Integer>) x -> x%2==0;  // legal with Java 10
-        Predicate<Integer> isEven2 = (var x) -> x%2==0; // legal with Java 11 (var on lambda parameter)
+        Predicate<Integer> isEven2 = (@NotNull var x) -> x%2==0; // legal with Java 11 (var on lambda parameter)
 
-
-        // no val/let, can use "final var"
-
+        // there is no val/let, can use "final var"
+        final var string = "can't touch this";
+            
         // can declare anonymous classes and use a new scoped type
         // note this is not dynamic typic! Everything still has a fixed type
         var person = new Object() {
@@ -61,12 +66,11 @@ public class Main {
         // easier to make tuple types, 
         // can pass multiple values through the Stream API in a type safe way
         // this is impossible before Java 10
-
         names.stream()
             .map(n -> new Object() {
                     String word = n;
                     int length = n.length();
-                    Instant processedTime = Instant.now();
+                    Instant processedTimestamp = Instant.now();
                 })
             .filter(t -> t.length > 3)
             .map(t -> t.word)
@@ -78,17 +82,16 @@ public class Main {
         // otherwise it will think you mean Set<Object> and you'll lose access to the type
         // Note that this is LOCAL type inference... 
         // the type of an anonymous subclass can't be in the return signature of a method
-        
         System.out.println("collecting");
         var longNames = names.stream()
             .map(n -> new Object() {
                     String word = n;
                     int length = n.length();
-                    Instant processedTime = Instant.now();
+                    Instant processedTimestamp = Instant.now();
                 })
             .filter(t -> t.length > 3)
             .collect(toSet());
-        System.out.println(longNames.iterator().next().processedTime);
+        System.out.println(longNames.iterator().next().processedTimestamp);
 
         // this makes a stream of anonymous subclasses
         // anonymous subclasses are bound to their outer "this" (in this case FancyFilter)
@@ -98,14 +101,13 @@ public class Main {
             bigCollection.addAll(new FancyFilter().suspiciousFilter(names));
         }
         
-        
-
 
         // "&" helps define an intersection type
-        // can work with intersection types before Java 10, 
-        // but var allows you to ASSIGN an intersection type  in a type-safe way
+        // can use intersection types before Java 10, 
+        // but var allows you to ASSIGN an intersection type in a type-safe way
         // (without declaring an explicit interface that extends both)
         // Note, broken in JShell 10 (https://bugs.openjdk.java.net/browse/JDK-8199907)
+        // slated for fix in Java 13 (Sept 2019)
         var duck = (Quacks & Waddles) Mixin::create; // look! no classes!
         duck.quack();
         duck.waddle();
@@ -129,9 +131,9 @@ public class Main {
 
         // TODO can't do this with List because list doesn't have default method implementations, you'd need to extend with defaults
         // works best with stateless collections of functionality (an interface containing only pure functions, for example)
-        List<String> alphabet = List.of("a", "b", "c");
-        var alphaPlus = (ListExtension & List) () -> alphabet;
-        System.out.println(alphaPlus.hasItems());
+//        List<String> alphabet = List.of("a", "b", "c");
+//        var alphaPlus = (ListExtension & List) () -> alphabet;
+//        System.out.println(alphaPlus.hasItems());
     }
 
     public interface ListExtension extends ListDelegate {
@@ -216,5 +218,12 @@ public class Main {
             return longNames;
         }
     }
+    
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.PARAMETER)
+    public @interface NotNull {
+	    public boolean enabled() default true;
+    }
+
         
 }

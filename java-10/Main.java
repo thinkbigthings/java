@@ -22,25 +22,27 @@ public class Main {
     public static void main(String[] args) {
     
         // can simplify simple declarations, but that's just convenience, doesn't change much
-        var names = Arrays.asList("here", "is", "a", "word", "list");
+        var names = List.of("here", "is", "a", "word", "list");
         System.out.println(names);
         
         // Poly expressions that require such a type, 
         // like lambdas, method references, and array initializers, trigger an error
-        // ILLEGAL! var out = System.out::println;
-        // ILLEGAL! var f = (int x) -> x*x;
+        //  
+        //  var out = System.out::println;  // ILLEGAL!
+        //  var f = (int x) -> x*x;         // ILLEGAL!
 
         // but this is legal
         var f = (IntUnaryOperator) (int a) -> a*a;
         System.out.println(f.applyAsInt(2));
 
         // you can put @NotNull on a lambda parameter
-        // annotations can be applied to local variables and lambda formals without losing brevity
+        // annotations can be applied to local variables and lambda variables
         var isEven = (Predicate<Integer>) x -> x%2==0;  // legal with Java 10
         Predicate<Integer> isEven2 = (@NotNull var x) -> x%2==0; // legal with Java 11 (var on lambda parameter)
 
         // there is no val/let, can use "final var"
         final var string = "can't touch this";
+        // string = ""; // Causes error at compile time
             
         // can declare anonymous classes and use a new scoped type
         // note this is not dynamic typic! Everything still has a fixed type
@@ -62,10 +64,13 @@ public class Main {
             .map(t -> t.getKey())
             .forEach(System.out::println);
             
-            
+
         // easier to make tuple types, 
         // can pass multiple values through the Stream API in a type safe way
         // this is impossible before Java 10
+        // https://stackoverflow.com/questions/43987285/implied-anonymous-types-inside-lambdas
+        // https://blog.codefx.org/java/tricks-var-anonymous-classes/
+        // cons: could affect readability, memory, and risk linking to enclosing class
         names.stream()
             .map(n -> new Object() {
                     String word = n;
@@ -76,6 +81,11 @@ public class Main {
             .map(t -> t.word)
             .forEach(System.out::println);
 
+        // an anonymous inner class hold a reference to the enclosing class, 
+        // what is the enclosing class in this case: the stream ? 
+        // I think this is a poor practice like double brace initialization
+        // this is called out as a "neat trick" but not by the JEP or language designers themselves,
+        // which likely indicates that this is not an intended use case
         
         // we can collect the anonymous type to a Set
         // the destination set needs to be "var" instead of "Set" 
@@ -129,7 +139,7 @@ public class Main {
         // http://iteratrlearning.com/java/generics/2016/05/12/intersection-types-java-generics.html
         // you can do this without var, var just reduces boilerplate which is a common complaint about Java
 
-        // TODO can't do this with List because list doesn't have default method implementations, you'd need to extend with defaults
+        // can't do this with List because list doesn't have default method implementations, you'd need to extend with defaults
         // works best with stateless collections of functionality (an interface containing only pure functions, for example)
 //        List<String> alphabet = List.of("a", "b", "c");
 //        var alphaPlus = (ListExtension & List) () -> alphabet;

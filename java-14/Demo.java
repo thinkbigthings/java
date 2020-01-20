@@ -1,7 +1,7 @@
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
-
+import static java.util.Optional.*;
 import static java.util.stream.Collectors.*;
 
 public class Demo {
@@ -46,26 +46,6 @@ public class Demo {
         // TODO contrast with var as intermediate type
         // https://github.com/thinkbigthings/java/blob/master/java-10/Main.java
 
-        // TODO use Try with alternative constructors instead of static factory methods
-
-        // TODO can a record type be declared twice identically in different scopes/methods? Referenced from
-
-
-        // can't assign a Range to a MinMax or cast to it
-        // would need to implement an interface that matches the generated methods
-        record MinMax(int min, int max) {  }
-        record Range(int min, int max) { }
-
-        // records can take other records
-        record Range2D(Range x, Range y) { }
-
-
-        // static class TestInner {} // can't use static on a class defined inside a method
-        // inner classes aren't usually defined inside a method because... boilerplate? Less readable?
-
-        // reference to inner class has nowhere to hide!
-        MinMax m = new MinMax(0, 0);
-
         List<EitherRecord<? extends Exception, Integer>> counts2 = names.stream()
                 .map(withExceptionCapture(String::length))
                 .collect(toList());
@@ -84,39 +64,81 @@ public class Demo {
         System.out.println(successes2);
 
 
-        // Also useful for equals()
-        Object object = "this is a string";
-        if (object instanceof String s && s.length() > 1){
-            System.out.println(s + " ... has length " + s.length());
-        }
-        else{
-            System.out.println("object is not a string");
-        }
+        List<Try<Integer>> counts3 = names.stream()
+                .map(withTry(String::length))
+                .collect(toList());
 
+        List<? extends Exception> exceptions3 = counts3.stream()
+                .flatMap(t -> t.streamException())
+                .collect(toList());
+
+        List<Integer> successes3 = counts3.stream()
+                .flatMap(t -> t.streamResult())
+                .collect(toList());
+
+
+        System.out.println(counts3);
+        System.out.println(exceptions3);
+        System.out.println(successes3);
+
+
+        // fields are called "record components"
+        record MinMax(int min, int max) {  }
+        record Range(int min, int max) { }
+
+        // can't assign a Range to a MinMax or cast to it (we don't have structural typing)
+        // would need to implement an interface that matches the generated methods
+
+        // If we define it twice in two different methods in same class,
+        // it just gets compiled to distinct inner classes.
+
+        // records can take other records
+        record Range2D(Range x, Range y) { }
+
+
+        // static class TestInner {} // can't use static on a class defined inside a method
+        // inner classes aren't usually defined inside a method because... boilerplate? Less readable?
+
+        // reference to inner class has nowhere to hide!
+        MinMax m = new MinMax(0, 0);
+
+        // does not re-use instances like String... that is a compiler feature. Locally caching is hard. maybe later?
+        MinMax m2 = new MinMax(0, 0);
+
+
+        new Try(new RuntimeException(), "");
     }
+
 
 
     // https://dzone.com/articles/exception-handling-in-java-streams
 
     record Try<R>(Exception exception, R result) {
 
-        public static <R > Try < R > Result(R r) {
-            return new Try<R>(null, r);
+        // "compact constructor" has the implied args
+        // cannot override the canonical constructor
+        public Try {
+            if(allSameNullness(exception, result)) {
+                throw new IllegalArgumentException("Must have exactly one argument null");
+            }
         }
-        public static <R > Try < R > Result(Exception ex) {
-            return new Try<R>(ex, null);
+
+        public Try(Exception e) {
+            // "canonical constructor" matches the state parameters
+            // other constructors MUST delegate to it
+            this(e, null);
         }
-        public Optional<? extends Exception> getException () {
-            return Optional.ofNullable(exception());
+        public Try(R result) {
+            this(null, result);
         }
-        public Optional<R> getResult () {
-            return Optional.ofNullable(result());
+        public Stream<? extends Exception> streamException() {
+            return ofNullable(exception).stream();
         }
-        public Stream<? extends Exception> streamException () {
-            return getException().stream();
+        public Stream<R> streamResult() {
+            return ofNullable(result).stream();
         }
-        public Stream<R> streamResult () {
-            return getResult().stream();
+        private static boolean allSameNullness(Object... args) {
+            return Stream.of(args).allMatch(Objects::isNull) || Stream.of(args).allMatch(Objects::nonNull);
         }
     }
 
@@ -140,6 +162,16 @@ public class Demo {
         public Stream<T> streamRight () {
             return getRight().stream();
         }
+    }
+
+    public static <T, R> Function<T, Try<R>> withTry(CheckedFunction<T, R> function) {
+        return t -> {
+            try {
+                return new Try(function.apply(t));
+            } catch (Exception ex) {
+                return new Try(ex);
+            }
+        };
     }
 
     public static <T, R> Function<T, EitherRecord<? extends Exception, R>> withExceptionCapture(CheckedFunction<T, R> function) {
@@ -202,14 +234,6 @@ public class Demo {
                     return Either.Left(ex);
                 }
             };
-        }
-
-        public <T> Optional<T> mapLeft(Function<? super L, T> mapper) {
-            return getLeft().map(mapper);
-        }
-
-        public <T> Optional<T> mapRight(Function<? super R, T> mapper) {
-            return getRight().map(mapper);
         }
 
         public String toString() {

@@ -100,6 +100,5 @@ public class DemoPatternMatching {
             Node child = childNodes.item(i);
             recursivePrint(child);
         }
-
     }
 }

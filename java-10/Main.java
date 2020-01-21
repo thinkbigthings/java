@@ -25,15 +25,22 @@ public class Main {
         var names = List.of("here", "is", "a", "word", "list");
         System.out.println(names);
         
-        // Poly expressions that require such a type, 
+        // "Poly Expressions" that require such a type,
         // like lambdas, method references, and array initializers, trigger an error
         //  
         //  var out = System.out::println;  // ILLEGAL!
         //  var f = (int x) -> x*x;         // ILLEGAL!
+        //
+        //  var f1 = (UnaryOperator<Integer>)((Integer x) -> x * x);  // LEGAL (but should we do this?)
+        //  UnaryOperator<Integer> f2 = x -> x * x;                   // LEGAL (and probably more readable)
 
         // but this is legal
-        var f = (IntUnaryOperator) (int a) -> a*a;
+        var f = (IntUnaryOperator) (int a) -> a * a;
         System.out.println(f.applyAsInt(2));
+
+        // and this may be more readable
+        IntUnaryOperator f2 =  a -> a * a;
+
 
         // you can put @NotNull on a lambda parameter
         // annotations can be applied to local variables and lambda variables
@@ -45,7 +52,7 @@ public class Main {
         // string = ""; // Causes error at compile time
             
         // can declare anonymous classes and use a new scoped type
-        // note this is not dynamic typic! Everything still has a fixed type
+        // note this is not dynamic typing! Everything still has a fixed type known at compile time
         var person = new Object() {
            String name = "bob";
            int age = 5;
@@ -58,6 +65,7 @@ public class Main {
         // what if you want to process a stream of data and retain the original with its processed version?
         // here's a Java 8 approach. This works but only with two values
         // what if you wanted to maintain a stream of three processed values? Nothing built-in anymore!
+        // not to mention, using the built-in Map Entry type is not so readable.
         names.stream()
             .map(n -> new AbstractMap.SimpleEntry<String,Integer>(n, n.length()))
             .filter(t -> t.getValue() > 3)
@@ -116,8 +124,6 @@ public class Main {
         // can use intersection types before Java 10, 
         // but var allows you to ASSIGN an intersection type in a type-safe way
         // (without declaring an explicit interface that extends both)
-        // Note, broken in JShell 10 (https://bugs.openjdk.java.net/browse/JDK-8199907)
-        // slated for fix in Java 13 (Sept 2019)
         var duck = (Quacks & Waddles) Mixin::create; // look! no classes!
         duck.quack();
         duck.waddle();

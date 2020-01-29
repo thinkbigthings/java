@@ -27,7 +27,9 @@ public class Main {
         
         // "Poly Expressions" that require such a type,
         // like lambdas, method references, and array initializers, trigger an error
-        //  
+        //
+        //  https://stackoverflow.com/questions/49134118/array-initializer-needs-an-explicit-target-type-why
+        //
         //  var out = System.out::println;  // ILLEGAL!
         //  var f = (int x) -> x*x;         // ILLEGAL!
         //

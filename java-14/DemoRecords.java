@@ -31,7 +31,7 @@ public class Demo {
         System.out.println(exceptions);
         System.out.println(successes);
 
-        // java --enable-preview --source 14 Demo.java
+        // java --enable-preview --source 14 DemoRecords.java
         // interesting functional reading: https://github.com/hemanth/functional-programming-jargon
 
 

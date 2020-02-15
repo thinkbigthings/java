@@ -39,14 +39,13 @@ public class DemoSwitch {
         // TODO yield statement, difference from return?
         // see switch expression vs statement: statement can NOT use yield, expression CAN.
         // flipped for break
-        // yield becomes the value of the evaulated expression, don't use return because you'd return from the outer function
+        // yield becomes the value of the evaulated expression, don't use return because you'd return from the function
         // use yield if you need to evaluate a block of code in the switch case.
 
-        // TODO use text blocks for XML test content
-
         // TODO use short values from Node.getNodeType() and switch on short to demonstrate parsing
-        File xmlFile = new File("/Users/jason-dev/dev/java/java-14/books.xml");
-        String content = Files.lines(xmlFile.toPath()).collect(Collectors.joining());
+//        File xmlFile = new File("/Users/jason-dev/dev/java/java-14/books.xml");
+//        String content = Files.lines(xmlFile.toPath()).collect(Collectors.joining());
+        String content = booksXML;
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
@@ -91,4 +90,100 @@ public class DemoSwitch {
             recursiveSwitchPrint(child, indent + " ");
         }
     }
+
+
+    // Can use text blocks for test content
+    private final static String booksXML = """
+    <?xml version="1.0"?>
+    <catalog>
+        <!-- I added a handy comment here -->
+        <book id="bk101">
+            <author>Gambardella, Matthew</author>
+            <title>XML Developer's Guide</title>
+            <genre>Computer</genre>
+            <price>44.95</price>
+            <publish_date>2000-10-01</publish_date>
+            <description>An in-depth look at creating applications
+             with XML.</description>
+        </book>
+        <book id="bk102">
+            <author>Ralls, Kim</author>
+            <title>Midnight Rain</title>
+            <genre>Fantasy</genre>
+            <price>5.95</price>
+            <publish_date>2000-12-16</publish_date>
+            <description>A former architect battles corporate zombies,
+            an evil sorceress, and her own childhood to become queen
+            of the world.</description>
+        </book>
+        <book id="bk103">
+            <author>Corets, Eva</author>
+            <title>Maeve Ascendant</title>
+            <genre>Fantasy</genre>
+            <price>5.95</price>
+            <publish_date>2000-11-17</publish_date>
+            <description>After the collapse of a nanotechnology
+            society in England, the young survivors lay the
+            foundation for a new society.</description>
+        </book>
+        <book id="bk104">
+            <author>Corets, Eva</author>
+            <title>Oberon's Legacy</title>
+            <genre>Fantasy</genre>
+            <price>5.95</price>
+            <publish_date>2001-03-10</publish_date>
+            <description>In post-apocalypse England, the mysterious
+            agent known only as Oberon helps to create a new life
+                    for the inhabitants of London. Sequel to Maeve
+                Ascendant.</description>
+        </book>
+        <book id="bk105">
+            <author>Corets, Eva</author>
+            <title>The Sundered Grail</title>
+            <genre>Fantasy</genre>
+            <price>5.95</price>
+            <publish_date>2001-09-10</publish_date>
+            <description>The two daughters of Maeve, half-sisters,
+            battle one another for control of England. Sequel to
+            Oberon's Legacy.</description>
+        </book>
+        <book id="bk106">
+            <author>Randall, Cynthia</author>
+            <title>Lover Birds</title>
+            <genre>Romance</genre>
+            <price>4.95</price>
+            <publish_date>2000-09-02</publish_date>
+            <description>When Carla meets Paul at an ornithology
+            conference, tempers fly as feathers get ruffled.</description>
+        </book>
+        <book id="bk107">
+            <author>Thurman, Paula</author>
+            <title>Splish Splash</title>
+            <genre>Romance</genre>
+            <price>4.95</price>
+            <publish_date>2000-11-02</publish_date>
+            <description>A deep sea diver finds true love twenty
+            thousand leagues beneath the sea.</description>
+        </book>
+        <book id="bk108">
+            <author>Knorr, Stefan</author>
+            <title>Creepy Crawlies</title>
+            <genre>Horror</genre>
+            <price>4.95</price>
+            <publish_date>2000-12-06</publish_date>
+            <description>An anthology of horror stories about roaches,
+            centipedes, scorpions  and other insects.</description>
+        </book>
+        <book id="bk109">
+            <author>Kress, Peter</author>
+            <title>Paradox Lost</title>
+            <genre>Science Fiction</genre>
+            <price>6.95</price>
+            <publish_date>2000-11-02</publish_date>
+            <description>After an inadvertant trip through a Heisenberg
+            Uncertainty Device, James Salway discovers the problems
+            of being quantum.</description>
+            </book>
+    </catalog>
+    """;
 }

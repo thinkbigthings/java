@@ -105,11 +105,34 @@ public class Demo {
         // does not re-use instances like String... that is a compiler feature. Locally caching is hard. maybe later?
         MinMax m2 = new MinMax(0, 0);
 
+        Person me = Person.newPerson().withFirstName("Me");
+        Person you = me.withFirstName("You");
 
+        System.out.println(me);
+        System.out.println(you);
+
+
+        // this should throw IllegalArgumentException
         new Try(new RuntimeException(), "");
     }
 
-
+    // This is one possible Builder pattern
+    // Good news it's an easy one-liner per method, no separate Builder class, immutable by default, no .build() at the end
+    // Bad news is it's a lot of boilerplate so it's error prone, and creates new object per builder method call
+    // There are a couple third party libraries trying to generate record builders...
+    // https://github.com/Randgalt/record-builder
+    // https://github.com/javahippie/jukebox
+    public static record Person(String firstName, String lastName) {
+        public static Person newPerson() {
+            return new Person("", "");
+        }
+        public Person withFirstName(String newFirstName) {
+            return new Person(newFirstName, lastName);
+        }
+        public Person withLastName(String newLastName) {
+            return new Person(firstName, newLastName);
+        }
+    }
 
     // https://dzone.com/articles/exception-handling-in-java-streams
 

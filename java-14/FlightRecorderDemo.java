@@ -19,7 +19,7 @@ public class Demo {
 
         // https://mbien.dev/blog/entry/jfr-event-streaming-with-java
 
-        // usage info here: https://docs.oracle.com/javase/9/docs/api/jdk/jfr/package-summary.html
+        // https://download.java.net/java/early_access/jdk14/docs/api/jdk.jfr/jdk/jfr/package-summary.html
 
         // https://github.com/jiekang/jfr-datasource
 
@@ -43,40 +43,30 @@ public class Demo {
         //# Print GC related events
         //        jfr print --categories "GC" myrecording.jfr
 
-        // https://docs.oracle.com/javase/9/docs/api/jdk/jfr/package-summary.html
-        // A list of available event names can be retrieved
-        // by calling FlightRecorder.getEventTypes() and EventType.getName().
-        // A list of available settings for an event type can be obtained by invoking
-        // EventType.getSettingDescriptors() and ValueDescriptor.getName().
+        // https://download.java.net/java/early_access/jdk14/docs/api/jdk.jfr/jdk/jfr/consumer/RecordingStream.html
 
+        // A list of available event names can be retrieved
         // jshell> jdk.jfr.FlightRecorder.getFlightRecorder().getEventTypes().stream().map(t -> t.getName()).forEach(n -> System.out.println(n));
 
 
 
-        startEventStream(List.of("jdk.CPULoad"), java.time.Duration.ofSeconds(10));
+        startEventStream(List.of("jdk.CPULoad"), java.time.Duration.ofSeconds(15));
 
         try{Thread.sleep(3_000);}
         catch(InterruptedException ie) {}
 
-
-
-        // TODO try pegging the CPU and logging the event if over a threshold
-        // IntStream.range(0,100).parallel().forEach( do heavy op ...)
-
-        java.security.SecureRandom random = new java.security.SecureRandom(java.math.BigInteger.ONE.toByteArray());
-        for(long i=0; i < 100_000_000; i++) {
-            int j = random.nextInt();
-            var x = new Object() { int k = j; };
-            if(x.k % 100_000_000 == 0) {
-                System.out.println(x.k);
+        // try pegging the CPU and telling by the event stream when the computation is happening
+        // TODO log if the event if over a threshold
+        IntStream.range(0, 20).parallel().forEach( s -> {
+            java.security.SecureRandom random = new java.security.SecureRandom(java.math.BigInteger.ONE.toByteArray());
+            for(long i=0; i < 1_000_000; i++) {
+                int j = random.nextInt();
+                var x = new Object() { int k = j; };
             }
-        }
+        });
 
         try{Thread.sleep(3_000);}
         catch(InterruptedException ie) {}
-
-
-
     }
 
     public static void startEventStream(List<String> eventNames, java.time.Duration eventStreamDuration) {
@@ -85,6 +75,8 @@ public class Demo {
 
         // TODO can we call .close() on the RecordingStream? What if we wanted to close it manually?
 
+        // TODO are we having trouble calling .start() in other ways because we didn't create the FlightRecorder?
+        // or does creating a RecordingStream create the FlightRecorder for you?
         new Thread(() -> {
             try (jdk.jfr.consumer.RecordingStream rs = new jdk.jfr.consumer.RecordingStream()) {
 

@@ -1,12 +1,17 @@
+package org.thinkbigthings.demo.records;
+
+
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 import static java.util.Optional.*;
 import static java.util.stream.Collectors.*;
 
-public class Demo {
+public class DemoRecords {
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
+
+    public void testRecords() {
 
         List<String> names = new ArrayList<>();
         names.add("a");
@@ -15,7 +20,7 @@ public class Demo {
 
 
         // TODO prove we can use it with CHECKED exceptions
-        // TODO .lift() is kind of esoteric to Java programmers, maybe use .tryX()
+        // TODO .lift() is kind of esoteric to Java programmers, maybe use .tryWith()
 
         List<Either<? extends Exception, Integer>> counts = names.stream()
                 .map(Either.lift(String::length))
@@ -29,6 +34,7 @@ public class Demo {
                 .flatMap(e -> e.streamRight())
                 .collect(toList());
 
+        // TODO use improved stack trace feature as one way to handle exceptions
 
         System.out.println(counts);
         System.out.println(exceptions);
@@ -38,12 +44,17 @@ public class Demo {
         // interesting functional reading: https://github.com/hemanth/functional-programming-jargon
 
 
-        // TODO try to write a collectingIf(element, predicate, collection supplier)
+        // TODO want to "catch" the exceptions that occurred in the stream
+        // try to write a collectingIf(element, predicate, collection supplier)
         // or collectLeft() to assume you take an Either and extract left from it
         // or collectExceptions() to collect to a List and map the successful entries to their values and continue the stream
         // or unwrapTry() to collect exceptions to a list and return the possibly empty result in a stream... flatMap(t -> unwrapTry(t, () -> exceptions))
+
+        //
+
         // or should a try/catch process the exception immediately to a callback, forwarding only results, eliminating need for Either or Try?
         // (modify withExceptionCapture)
+        // pass an Exception consumer into the try/lift
 
         // Venkat suggests that exceptions in streams should be preserved and processed through a parallel pipe in the stream
         // TODO custom collector that collects into multiple provided collections for left and right side?
@@ -53,9 +64,8 @@ public class Demo {
         // TODO contrast with var as intermediate type
         // https://github.com/thinkbigthings/java/blob/master/java-10/Main.java
 
-
         List<EitherRecord<? extends Exception, Integer>> counts2 = names.stream()
-                .map(withExceptionCapture(String::length))
+                .map(tryCatch(String::length))
                 .collect(toList());
 
         List<? extends Exception> exceptions2 = counts2.stream()
@@ -88,6 +98,60 @@ public class Demo {
         System.out.println(counts3);
         System.out.println(exceptions3);
         System.out.println(successes3);
+
+
+
+        // this works fine, but we have to look back at the collector to remember what the Boolean means
+        Map<Boolean, List<EitherRecord>> attempts = names.stream()
+                .map(tryCatch(String::length))
+                .collect(partitioningBy(EitherRecord::hasLeft));
+
+        // this is the closest we can get to multiple return values
+        record CountResults(List<? extends Exception> exceptions, List<Integer> counts) {}
+
+        CountResults c = names.stream()
+                .map(withTry(String::length))
+                .collect(teeing(flatMapping(Try::exceptions, toList()), flatMapping(Try::results, toList()), CountResults::new));
+
+        c.counts();
+        c.exceptions();
+
+
+        // People sometimes use Map.Entry to collect teeing results, Records make this much more usable
+        // e.e. https://stackoverflow.com/questions/58229186/how-to-aggregate-multiple-fields-using-collectors-in-java
+
+        record Charge(double amount, double tax) {
+            public static Charge add(Charge c1, Charge c2){
+                return new Charge(c1.amount() + c2.amount(), c1.tax() + c2.tax());
+            }
+        }
+        List<Charge> itemizedCharges = List.of(new Charge(1,2), new Charge(3,4), new Charge(5,6));
+
+        // one person's idea to get the totals
+        double totalAmount = itemizedCharges.stream().map(Charge::amount).reduce(0.0, Double::sum);
+        double totalTax = itemizedCharges.stream().map(Charge::tax).reduce(0.0, Double::sum);
+
+
+        // this is probably the most readable, at the cost of adding a new method to Charge.
+        // Doesn't require any records or obscure stream techniques
+        // The data is the same but the MEANING might be a little different (total vs itemized)
+        Charge total = itemizedCharges.stream().reduce(new Charge(0,0), Charge::add);
+
+        // this could be defined as a new record: TotalCharges to indicate the meaning not just the data.
+        // teeing lets us essentially reduce to a type that's different from the elements being reduced
+        record Total(double amount, double tax){}
+        Total total2 = itemizedCharges.stream()
+                .collect(teeing(summingDouble(Charge::amount), summingDouble(Charge::tax), Total::new));
+
+
+
+        // use case: parsing protobuf
+
+        // use case: making calls or a set of sequential calls and recording how far each went
+        // making network calls, opening and reading files...
+        // could demonstrate with a unit test that loads a file and interrupts it while reading
+
+
 
 
         // fields are called "record components"
@@ -131,8 +195,11 @@ public class Demo {
     // https://github.com/Randgalt/record-builder
     // https://github.com/javahippie/jukebox
     public static record Person(String firstName, String lastName) {
+        public Person() {
+            this("", "");
+        }
         public static Person newPerson() {
-            return new Person("", "");
+            return new Person();
         }
         public Person withFirstName(String newFirstName) {
             return new Person(newFirstName, lastName);
@@ -154,19 +221,31 @@ public class Demo {
             }
         }
 
+        // "canonical constructor" matches the state parameters
+        // other constructors MUST delegate to it
         public Try(Exception e) {
-            // "canonical constructor" matches the state parameters
-            // other constructors MUST delegate to it
             this(e, null);
         }
         public Try(R result) {
             this(null, result);
+        }
+        public static <R> Stream<? extends Exception> exceptions(Try<R> tryResult) {
+            return ofNullable(tryResult.exception()).stream();
+        }
+        public static <R> Stream<R> results(Try<R> tryResult) {
+            return ofNullable(tryResult.result()).stream();
         }
         public Stream<? extends Exception> streamException() {
             return ofNullable(exception).stream();
         }
         public Stream<R> streamResult() {
             return ofNullable(result).stream();
+        }
+        public static <R> boolean hasException(Try<R> tryResult) {
+            return tryResult.exception() != null;
+        }
+        public boolean hasOwnException() {
+            return hasException(this);
         }
         private static boolean allSameNullness(Object... args) {
             return Stream.of(args).allMatch(Objects::isNull) || Stream.of(args).allMatch(Objects::nonNull);
@@ -180,6 +259,12 @@ public class Demo {
         }
         public static <E, T> EitherRecord < E, T > Right(T t) {
             return new EitherRecord<E, T>(null, t);
+        }
+        public static <E, T> boolean hasLeft(EitherRecord<E,T> either) {
+            return either.getLeft().isPresent();
+        }
+        public boolean hasException() {
+            return getLeft().isPresent();
         }
         public Optional<E> getLeft () {
             return Optional.ofNullable(left());
@@ -205,7 +290,7 @@ public class Demo {
         };
     }
 
-    public static <T, R> Function<T, EitherRecord<? extends Exception, R>> withExceptionCapture(CheckedFunction<T, R> function) {
+    public static <T, R> Function<T, EitherRecord<? extends Exception, R>> tryCatch(CheckedFunction<T, R> function) {
         return t -> {
             try {
                 return EitherRecord.Right(function.apply(t));

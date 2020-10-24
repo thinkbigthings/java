@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+group 'org.thinkbigthings'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_15
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+// use preview features
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+    options.compilerArgs += "-Xlint:unchecked"
+}
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+tasks.withType(JavaExec) {
+    jvmArgs += '--enable-preview'
+}

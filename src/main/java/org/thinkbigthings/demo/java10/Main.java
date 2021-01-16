@@ -1,6 +1,8 @@
 
 
 
+package org.thinkbigthings.demo.java10;
+
 import java.lang.annotation.*;
 import java.util.*;
 import java.util.function.*;
@@ -69,7 +71,7 @@ public class Main {
         // what if you wanted to maintain a stream of three processed values? Nothing built-in anymore!
         // not to mention, using the built-in Map Entry type is not so readable.
         names.stream()
-            .map(n -> new AbstractMap.SimpleEntry<String,Integer>(n, n.length()))
+            .map(n -> new AbstractMap.SimpleEntry<>(n, n.length()))
             .filter(t -> t.getValue() > 3)
             .map(t -> t.getKey())
             .forEach(System.out::println);
@@ -113,14 +115,6 @@ public class Main {
             .collect(toSet());
         System.out.println(longNames.iterator().next().processedTimestamp);
 
-        // this makes a stream of anonymous subclasses
-        // anonymous subclasses are bound to their outer "this" (in this case FancyFilter)
-        // and carry risk of memory leaks, so be wary about retaining or returning objects of anonymous subclasses
-        List bigCollection = new ArrayList();
-        for(int i=0; i < 100; i++) {
-            bigCollection.addAll(new FancyFilter().suspiciousFilter(names));
-        }
-        
 
         // "&" helps define an intersection type
         // can use intersection types before Java 10, 
@@ -224,8 +218,8 @@ public class Main {
         
         private byte[] lotsOfHiddenStuff = new byte[5_000_000];
         
-        public List suspiciousFilter(List<String> names) {
-            var longNames = names.stream()
+        public List<?> suspiciousFilter(List<String> names) {
+            List<?> longNames = names.stream()
                                 .map(n -> new Object() {
                                         String word = n;
                                         int length = n.length();

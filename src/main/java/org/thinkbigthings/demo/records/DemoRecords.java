@@ -97,9 +97,13 @@ public class DemoRecords {
         System.out.println(successes3);
 
 
+        var x = names.stream()
+                .map(tryCatch(String::length))
+                .collect(toList());
 
-        // this works fine, but we have to look back at the collector to remember what the Boolean means
-        Map<Boolean, List<EitherRecord>> attempts = names.stream()
+        // this works, but we have to look back at the collector to remember what the Boolean means
+        // Map<Boolean, List<EitherRecord<? extends Exception, Integer>>>
+        var attempts = names.stream()
                 .map(tryCatch(String::length))
                 .collect(partitioningBy(EitherRecord::hasLeft));
 
@@ -108,7 +112,10 @@ public class DemoRecords {
 
         CountResults c = names.stream()
                 .map(withTry(String::length))
-                .collect(teeing(flatMapping(Try::exceptions, toList()), flatMapping(Try::results, toList()), CountResults::new));
+                .collect(teeing(
+                        flatMapping(Try::exceptions, toList()),
+                        flatMapping(Try::results, toList()),
+                        CountResults::new));
 
         c.counts();
         c.exceptions();
@@ -183,7 +190,7 @@ public class DemoRecords {
 
         // this should throw IllegalArgumentException
         try {
-            new Try(new RuntimeException(), "");
+            new Try<>(new RuntimeException(), "");
         }
         catch(IllegalArgumentException e) {
             System.out.println("Caught illegal argument as expected");
@@ -286,9 +293,9 @@ public class DemoRecords {
     public static <T, R> Function<T, Try<R>> withTry(CheckedFunction<T, R> function) {
         return t -> {
             try {
-                return new Try(function.apply(t));
+                return new Try<>(function.apply(t));
             } catch (Exception ex) {
-                return new Try(ex);
+                return new Try<>(ex);
             }
         };
     }
@@ -314,11 +321,11 @@ public class DemoRecords {
         }
 
         public static <L, R> Either<L, R> Left(L value) {
-            return new Either(value, null);
+            return new Either<>(value, null);
         }
 
         public static <L, R> Either<L, R> Right(R value) {
-            return new Either(null, value);
+            return new Either<>(null, value);
         }
 
         public Optional<L> getLeft() {

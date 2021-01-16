@@ -1,6 +1,7 @@
 package org.thinkbigthings.demo.records;
 
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -8,6 +9,7 @@ import java.nio.file.Paths;
 public class RecordTest {
 
     @Test
+    @DisplayName("Record serialization")
     public void testSerialization() throws Exception {
 
         File serializedFile = Paths.get("build", "serial.data").toFile();

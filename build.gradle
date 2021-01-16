@@ -12,13 +12,25 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.6.28'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 // use preview features
 tasks.withType(JavaCompile) {
     options.compilerArgs += "--enable-preview"
+    // options.compilerArgs += "-Xlint:preview"
     options.compilerArgs += "-Xlint:unchecked"
+    options.compilerArgs += "-Xlint:deprecation"
 }
 tasks.withType(Test) {
     jvmArgs += "--enable-preview"

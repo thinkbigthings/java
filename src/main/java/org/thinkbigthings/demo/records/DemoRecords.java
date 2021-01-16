@@ -9,9 +9,7 @@ import static java.util.stream.Collectors.*;
 
 public class DemoRecords {
 
-//    public static void main(String[] args) {
-
-    public void testRecords() {
+    public static void main(String[] args) {
 
         List<String> names = new ArrayList<>();
         names.add("a");
@@ -40,12 +38,11 @@ public class DemoRecords {
         System.out.println(exceptions);
         System.out.println(successes);
 
-        // java --enable-preview --source 14 DemoRecords.java
+        // java --enable-preview --source 15 DemoRecords.java
         // interesting functional reading: https://github.com/hemanth/functional-programming-jargon
 
 
         // TODO want to "catch" the exceptions that occurred in the stream
-        // try to write a collectingIf(element, predicate, collection supplier)
         // or collectLeft() to assume you take an Either and extract left from it
         // or collectExceptions() to collect to a List and map the successful entries to their values and continue the stream
         // or unwrapTry() to collect exceptions to a list and return the possibly empty result in a stream... flatMap(t -> unwrapTry(t, () -> exceptions))
@@ -169,7 +166,7 @@ public class DemoRecords {
 
 
         // static class TestInner {} // can't use static on a class defined inside a method
-        // inner classes aren't usually defined inside a method because... boilerplate? Less readable?
+        // nonstatic inner classes aren't usually defined inside a method because... boilerplate? Less readable?
 
         // reference to inner class has nowhere to hide!
         MinMax m = new MinMax(0, 0);
@@ -185,7 +182,13 @@ public class DemoRecords {
 
 
         // this should throw IllegalArgumentException
-        new Try(new RuntimeException(), "");
+        try {
+            new Try(new RuntimeException(), "");
+        }
+        catch(IllegalArgumentException e) {
+            System.out.println("Caught illegal argument as expected");
+        }
+
     }
 
     // This is one possible Builder pattern

@@ -8,18 +8,25 @@ import java.nio.file.Paths;
 public class RecordTest {
 
     @Test
-    public void testRecordSerialization() throws Exception {
+    public void testSerialization() throws Exception {
 
-        record Point3D(float x, float y, float z) implements Serializable {}
+        File serializedFile = Paths.get("build", "serial.data").toFile();
 
-        Point3D userInfo = new Point3D(1, 2, 3);
+        // effectively final resources declared outside try
+        var input  = new ObjectInputStream( new FileInputStream(serializedFile));
+        var output = new ObjectOutputStream(new FileOutputStream(serializedFile));
 
-        String serializedRecord = Paths.get("build", "serial.data").toString();
-        try(var oos = new ObjectOutputStream(new FileOutputStream(serializedRecord))) {
-            oos.writeObject(userInfo);
-        }
-        try(var ois = new ObjectInputStream(new FileInputStream(serializedRecord))) {
-            System.out.println(ois.readObject());
+        try(input; output) {
+
+            record Point(float x, float y) implements Serializable {}
+
+            var point = new Point(1, 2);
+            output.writeObject(point);
+
+            var point2 = input.readObject();
+
+            System.out.println(point2);
+            System.out.println(point.equals(point2));
         }
 
     }

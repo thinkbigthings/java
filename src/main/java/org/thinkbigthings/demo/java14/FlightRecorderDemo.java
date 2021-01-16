@@ -62,7 +62,9 @@ public class FlightRecorderDemo {
         IntStream.range(0, 20).parallel().forEach( s -> {
             java.security.SecureRandom random = new java.security.SecureRandom(java.math.BigInteger.ONE.toByteArray());
             for(long i=0; i < 1_000_000; i++) {
+                // do a CPU intensive operation
                 int j = random.nextInt();
+                // allocate some memory
                 var x = new Object() { int k = j; };
             }
         });

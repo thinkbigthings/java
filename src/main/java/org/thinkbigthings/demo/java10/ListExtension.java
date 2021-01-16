@@ -1,3 +1,4 @@
+package org.thinkbigthings.demo.java10;
 
 import java.util.*;
 import java.util.function.*;
@@ -13,6 +14,7 @@ https://gist.github.com/benjiman/a8945f378691f4c1d258a12bed825ec2
 
 */
 public class ListExtension {
+
     public static void main(String[] args) {
     
     
@@ -21,10 +23,10 @@ public class ListExtension {
         // have trouble putting List in cast, as List is not a functional interface
         // would need the extension method to extend List and implement its methods as in original gist (they don't actually cast to List)
         // still not sure what that gets you over a wrapper class that forwards calls that you can add methods to.
-        var filterableNumbers = (Filterable<Integer>) () -> numbers;
-
-        System.out.println(filterableNumbers.filter( n -> n%2==0));
-        System.out.println(filterableNumbers.delegate());
+//        Filterable<Integer> filterableNumbers = (Filterable<Integer>) () -> numbers;
+//
+//        System.out.println(filterableNumbers.filter( n -> n%2==0));
+//        System.out.println(filterableNumbers.delegate());
         
     }
 

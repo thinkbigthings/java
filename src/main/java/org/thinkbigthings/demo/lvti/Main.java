@@ -1,7 +1,7 @@
 
 
 
-package org.thinkbigthings.demo.java10;
+package org.thinkbigthings.demo.lvti;
 
 import java.lang.annotation.*;
 import java.util.*;
@@ -115,127 +115,13 @@ public class Main {
             .collect(toSet());
         System.out.println(longNames.iterator().next().processedTimestamp);
 
-
-        // "&" helps define an intersection type
-        // can use intersection types before Java 10, 
-        // but var allows you to ASSIGN an intersection type in a type-safe way
-        // (without declaring an explicit interface that extends both)
-        var duck = (Quacks & Waddles) Mixin::create; // look! no classes!
-        duck.quack();
-        duck.waddle();
-        
-        doDucklikeThings(duck);
-        
-      
-        // what else can we do with intersection types? It's an alternative way to compose behavior
-        // need functional interface (single method interfaces) to do this trick, otherwise can't cast to the new interface
-        // this could be helpful if have only one place you need this specific combination of functionality,
-        // maybe in the context of breaking apart a large method and reducing number of method arguments to sub-calls
-        FlyingMallard m = new FlyingMallard();
-        var v = (BirdExtension & Mallard) () -> m;
-        v.flyPlus();
-        
-
-        // what are some practical examples, though?
-        // example with DataInput, Closeable: 
-        // http://iteratrlearning.com/java/generics/2016/05/12/intersection-types-java-generics.html
-        // you can do this without var, var just reduces boilerplate which is a common complaint about Java
-
-        // can't do this with List because list doesn't have default method implementations, you'd need to extend with defaults
-        // works best with stateless collections of functionality (an interface containing only pure functions, for example)
-//        List<String> alphabet = List.of("a", "b", "c");
-//        var alphaPlus = (ListExtension & List) () -> alphabet;
-//        System.out.println(alphaPlus.hasItems());
     }
 
-    public interface ListExtension extends ListDelegate {
-        default boolean hasItems() {
-            return ! delegate().isEmpty();
-        }
-    }
-
-    @FunctionalInterface
-    interface ListDelegate {
-        List delegate();
-    }
-
-    public static <T extends Quacks & Waddles> void doDucklikeThings(T ducklike) {
-        ducklike.quack();
-        ducklike.waddle();
-    }
-
-    public interface Mallard {
-        public default void beMallardy() {
-            System.out.println("I'm a Mallard!");
-        }
-        public default void doMallardStuff() {
-            System.out.println("I do Mallard stuff!");
-        }
-    }
-    
-    public static final class FlyingMallard implements Bird, Mallard {
-        public void fly() { System.out.println("Mallard fly"); }
-        public void doStuff(){}
-    }
-    
-    // if we implement Bird but don't delegate fly(), you get the fly() implementation of the default Bird interface
-    // but still can't override it here. Needs single method to satisfy functional interface
-    interface BirdExtension extends BirdDelegate {
-        default void flyPlus() {
-            delegate().fly();
-            System.out.println("and more");
-        }
-    }
-    
-    @FunctionalInterface
-    interface BirdDelegate {
-        Bird delegate();    
-    }
-    
-    interface Bird {
-        default void fly() {}
-    }
-    
-    interface Quacks extends Mixin {
-       default void quack() {
-           System.out.println("Quack");
-       }
-    }
-
-    interface Waddles extends Mixin {
-       default void waddle() {
-           System.out.println("Waddle");
-       }
-    }
-
-    interface Mixin {
-       void __noop__();
-       static void create() {}
-    }
-
-
-    public static class FancyFilter { 
-        
-        private byte[] lotsOfHiddenStuff = new byte[5_000_000];
-        
-        public List<?> suspiciousFilter(List<String> names) {
-            List<?> longNames = names.stream()
-                                .map(n -> new Object() {
-                                        String word = n;
-                                        int length = n.length();
-                                        Instant processedTime = Instant.now();
-                                    })
-                                .filter(t -> t.length > 3)
-                                .collect(toList());
-            return longNames;
-        }
-    }
-    
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.PARAMETER)
     public @interface NotNull {
 	    public boolean enabled() default true;
     }
 
-        
+
 }

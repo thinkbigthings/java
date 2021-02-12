@@ -64,9 +64,9 @@ public class RecordStreamsTest {
         }
 
         List<Charge> itemizedCharges = List.of(
-                new Charge(1,2),
-                new Charge(3,4),
-                new Charge(5,6));
+                new Charge(2,1),
+                new Charge(3,1),
+                new Charge(4,1));
 
         // one idea to get the totals
         double totalAmount = itemizedCharges.stream()
@@ -94,6 +94,7 @@ public class RecordStreamsTest {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
+        // which one won't be parsed? use this in your next coding interview
         List<String> dates = List.of("2021-06-21", "whoops", "2001-12-21");
 
         // code reviewers hate this one simple trick

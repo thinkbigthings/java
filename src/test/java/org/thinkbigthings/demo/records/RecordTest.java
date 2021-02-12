@@ -1,24 +1,73 @@
 package org.thinkbigthings.demo.records;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RecordTest {
+
+    @Test
+    public void testImmutability() {
+
+        // records are shallowly immutable
+        record WordList(List<String> words) {
+
+            // we can assign in an overridden constructor, but not in a compact constructor
+            public WordList(List<String> words) {
+                this.words = Collections.unmodifiableList(words);
+            }
+        }
+
+        ArrayList<String> mutableWords = new ArrayList<>();
+        mutableWords.add("The");
+        mutableWords.add("fox");
+        mutableWords.add("jumped");
+
+        WordList list = new WordList(mutableWords);
+
+        assertThrows(UnsupportedOperationException.class, () -> list.words().clear());
+
+    }
+
+    @Test
+    public void testDeclarations() {
+
+        // We now have the ability to declare these locally:
+        // local record classes, local enum classes, and local interfaces
+
+        enum MyEnum { THIS, THAT, OTHER_THING }
+
+        interface HasMyEnum {
+            MyEnum thing();
+        }
+
+        record EnumWrapper(MyEnum thing) implements HasMyEnum {}
+
+        HasMyEnum myInterface = new EnumWrapper(MyEnum.OTHER_THING);
+
+        assertEquals(MyEnum.OTHER_THING, myInterface.thing());
+
+
+        class MyInnerClass {
+
+            // an inner class can declare a member that is a record class
+            public EnumWrapper enumWrapper;
+
+            // To accomplish this,
+            // as of Java 16 an inner class can declare a member that is explicitly or implicitly static
+//            public static String NAME = "name";
+
+        }
+
+    }
+
 
     @Test
     public void basicRecords() {
@@ -49,13 +98,39 @@ public class RecordTest {
         assertEquals(m, m2);
     }
 
+    @Test
+    public void testReflection() {
+
+        record Reflectable(String component) {}
+
+        assertTrue(Reflectable.class.isRecord());
+        assertFalse(this.getClass().isRecord());
+
+        assertEquals(1, Reflectable.class.getRecordComponents().length);
+        assertEquals("component", Reflectable.class.getRecordComponents()[0].getName());
+
+    }
 
     @Test
     public void testValidatingConstructor() {
 
-        // this should throw IllegalArgumentException if you try to construct something with both sides
-        assertThrows(IllegalArgumentException.class, () -> new Try<>(new RuntimeException(), ""));
-        assertThrows(IllegalArgumentException.class, () -> new Try<>(null, null));
+        record PositiveInt(int value) {
+            PositiveInt {
+                // weird, the spec says:
+                // To enforce the intended use of compact constructors,
+                // it became a compile-time error to assign to any of the instance fields in the constructor body
+                if(value <= 0) {
+                    value = 0;
+//                    throw new IllegalArgumentException("Value must be > 0");
+                }
+            }
+        }
+
+        PositiveInt p = new PositiveInt(-1);
+        int val = p.value();
+//        assertThrows(IllegalArgumentException.class, () -> new PositiveInt(-1));
+
+        assertEquals(1, new PositiveInt(1).value());
     }
 
     @Test
@@ -74,35 +149,46 @@ public class RecordTest {
     @DisplayName("Record serialization")
     public void testSerialization() throws Exception {
 
-        File serializedFile = Paths.get("build", "serial.data").toFile();
+        File serializedRecord = Paths.get("build", "serial.data").toFile();
 
         // records still have to implement Serializable to participate in serialization
         record Point(float x, float y) implements Serializable {}
 
-
         Point p1 = new Point(1, 2);
 
-        try(var output = new ObjectOutputStream(new FileOutputStream(serializedFile))) {
+        try(var output = new ObjectOutputStream(new FileOutputStream(serializedRecord))) {
             output.writeObject(p1);
         }
 
-        try(var input  = new ObjectInputStream(new FileInputStream(serializedFile))) {
+        try(var input  = new ObjectInputStream(new FileInputStream(serializedRecord))) {
             Point p2 = (Point)input.readObject();
             assertEquals(p1, p2);
         }
 
+
+        //////////////////////////////////
+
+        File serializedClass = Paths.get("build", "serialclass.data").toFile();
+
+        PointClass pc1 = new PointClass();
+        pc1.x = 1;
+        pc1.y = 2;
+
+        try(var output = new ObjectOutputStream(new FileOutputStream(serializedClass))) {
+            output.writeObject(pc1);
+        }
+
+        try(var input  = new ObjectInputStream(new FileInputStream(serializedClass))) {
+            PointClass pc2 = (PointClass)input.readObject();
+            assertNotEquals(pc1, pc2);
+        }
+
+
     }
 
-//    public interface StoreRepository extends JpaRepository<Store, Long> {
-//
-//        Optional<Store> findByName(String name);
-//
-//        @Query("SELECT new org.thinkbigthings.zdd.dto.StoreRecord" +
-//                "(s.name, s.website) " +
-//                "FROM Store s " +
-//                "ORDER BY s.name ASC ")
-//        Page<StoreRecord> loadSummaries(Pageable page);
-//    }
+    // static class can't be defined inside method
+    // non-static inner class in method refers to enclosing class which is not serializable, so serialization would fail
+    static class PointClass implements Serializable { public float x, y; }
 
     @Test
     public void testMultiKeyMap() {
@@ -135,8 +221,8 @@ public class RecordTest {
         // of course we can wrap and throw exceptions
         // but records can lead us to bundle data together in ways we might not have done before
 
-        MultiReturn<String> nativeError = pretendNativeError();
-        MultiReturn<String> nativeValue = pretendNativeWorks();
+        MultiReturn<String> nativeError = pretendJniError();
+        MultiReturn<String> nativeValue = pretendJniWorks();
 
         assertTrue(nativeValue.returnValue().isPresent());
         assertFalse(nativeError.errorCode() == 0);
@@ -145,11 +231,11 @@ public class RecordTest {
 
     record MultiReturn<T>(Optional<T> returnValue, Integer errorCode) {}
 
-    public MultiReturn<String> pretendNativeWorks() {
+    public MultiReturn<String> pretendJniWorks() {
         return new MultiReturn<>(Optional.of("Native value here"), 0);
     }
 
-    public MultiReturn<String> pretendNativeError() {
+    public MultiReturn<String> pretendJniError() {
         return new MultiReturn<>(Optional.empty(), 100);
     }
 

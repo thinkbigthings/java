@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static org.thinkbigthings.demo.records.Expression.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RecordTest {
@@ -20,8 +22,12 @@ public class RecordTest {
         record WordList(List<String> words) {
 
             // we can assign in an overridden constructor, but not in a compact constructor
-            public WordList(List<String> words) {
-                this.words = Collections.unmodifiableList(words);
+//            public WordList(List<String> words) {
+//                this.words = Collections.unmodifiableList(words);
+//            }
+
+            public WordList {
+                words = Collections.unmodifiableList(words);
             }
         }
 
@@ -115,15 +121,21 @@ public class RecordTest {
     public void testValidatingConstructor() {
 
         record PositiveInt(int value) {
-            PositiveInt {
-                // weird, the spec says:
-                // To enforce the intended use of compact constructors,
-                // it became a compile-time error to assign to any of the instance fields in the constructor body
-                if(value <= 0) {
-                    value = 0;
-//                    throw new IllegalArgumentException("Value must be > 0");
-                }
+
+            public PositiveInt(int value) {
+                this.value = 100;
             }
+
+//            PositiveInt {
+//                // weird, the spec says:
+//                // To enforce the intended use of compact constructors,
+//                // it became a compile-time error to assign to any of the instance fields in the constructor body
+//                // it seems the only thing we can NOT do is assign to "this.value" in the compact constructor
+//                if(value <= 0) {
+//                    value = 0;
+////                    throw new IllegalArgumentException("Value must be > 0");
+//                }
+//            }
         }
 
         PositiveInt p = new PositiveInt(-1);
@@ -131,6 +143,17 @@ public class RecordTest {
 //        assertThrows(IllegalArgumentException.class, () -> new PositiveInt(-1));
 
         assertEquals(1, new PositiveInt(1).value());
+    }
+
+    @Test
+    public void testASTWithSealedTypes() {
+
+        Expression five = new IntExp(5);
+        Expression four = new IntExp(4);
+        Expression plus = new AddExp(five, four) ;
+        Expression root = new SubtractExp(plus, new IntExp(1));
+
+        assertEquals(8, root.value());
     }
 
     @Test

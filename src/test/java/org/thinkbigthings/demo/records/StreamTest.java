@@ -13,7 +13,7 @@ import static java.util.stream.Collectors.toList;
 import static org.thinkbigthings.demo.records.Functional.uncheck;
 import static org.thinkbigthings.demo.records.Try.*;
 
-public class RecordStreamsTest {
+public class StreamTest {
 
     @Test
     public void testRetainStreamData() {

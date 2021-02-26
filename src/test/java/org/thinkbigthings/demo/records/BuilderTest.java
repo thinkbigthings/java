@@ -13,13 +13,15 @@ public class BuilderTest {
     @Test
     public void testCustomBuilder() {
 
-        BuildablePerson me = BuildablePerson.newPerson().withFirstName("Me");
+        BuildablePerson bilbo = BuildablePerson.newPerson()
+                .withFirstName("Bilbo")
+                .withLastName("Baggins");
 
-        BuildablePerson you = me.withFirstName("You");
+        BuildablePerson frodo = bilbo.withFirstName("Frodo");
 
-        assertEquals(me.firstName(), "Me");
-        assertEquals(you.firstName(), "You");
-        assertNotEquals(me, you);
+        assertEquals(bilbo.firstName(), "Bilbo");
+        assertEquals(frodo.firstName(), "Frodo");
+        assertNotEquals(bilbo, frodo);
     }
 
 }

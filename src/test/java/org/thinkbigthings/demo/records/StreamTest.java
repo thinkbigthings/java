@@ -18,10 +18,9 @@ public class StreamTest {
     @Test
     public void testRetainStreamData() {
 
-        // introduce new data during the stream and keep passing it along
-
         var words = List.of("here", "is", "a", "word", "list");
 
+        // map the data and pass along with original value
 
         // using "var" here allows us to assign to a real type (not Object, but anonymous)
         // this is allowed via LVTI introduced in Java 10, but it's... cumbersome
@@ -52,7 +51,7 @@ public class StreamTest {
     }
 
     @Test
-    public void basicStream() {
+    public void testTargetTerminalOperation() {
 
         // People sometimes use Map.Entry to handle simple pairs, including inside Streams.
         // Records make this much more usable.

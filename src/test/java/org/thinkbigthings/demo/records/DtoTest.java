@@ -110,7 +110,15 @@ public class DtoTest {
 
     // static class can't be defined inside method
     // non-static inner class implicitly refers to its non-serializable enclosing class so would fail serialization
-    static class PointClass implements Serializable { public float x, y; }
+    static class PointClass implements Serializable {
+        public float x, y;
+        public PointClass() {}
+        public  PointClass(float x, float y) {
+            if(x < 0 || y < 0) {
+                throw new IllegalArgumentException("points must be  > 0");
+            }
+        }
+    }
 
 
     @Test
@@ -120,7 +128,13 @@ public class DtoTest {
         File serializedRecord = Paths.get("build", "serial.data").toFile();
 
         // records still have to implement Serializable to participate in serialization
-        record Point(float x, float y) implements Serializable {}
+        record Point(float x, float y) implements Serializable {
+            Point {
+                if(x < 0 || y < 0) {
+                    throw new IllegalArgumentException("points must be  > 0");
+                }
+            }
+        }
 
         Point p1 = new Point(1, 2);
 
@@ -138,9 +152,8 @@ public class DtoTest {
 
         File serializedClass = Paths.get("build", "serialclass.data").toFile();
 
-        PointClass pc1 = new PointClass();
-        pc1.x = 1;
-        pc1.y = 2;
+        PointClass pc1 = new PointClass(1, 2);
+
 
         try(var output = new ObjectOutputStream(new FileOutputStream(serializedClass))) {
             output.writeObject(pc1);
@@ -148,6 +161,8 @@ public class DtoTest {
 
         try(var input  = new ObjectInputStream(new FileInputStream(serializedClass))) {
 
+            // validation in the constructor is not called
+            // the bytes could be modified to create an "impossible" object
             PointClass pc2 = (PointClass) input.readObject();
 
             assertEquals(pc1.x, pc2.x);

@@ -24,20 +24,11 @@ public class BasicTest {
         // can't assign a Range to a MinMax or cast to it (we don't have structural typing)
         // would need to define an interface that matches the generated methods
 
-        // If we define it twice in two different methods in same class,
-        // it just gets compiled to distinct inner classes.
-
         // records can take other records as arguments
         record Range2D(Range x, Range y) { }
 
-        // can't use static on a class defined inside a method
-        // nonstatic inner classes risk carrying around a reference to the enclosing class and impacting garbage
-
-
-        // reference to inner class has nowhere to hide!
-        MinMax m = new MinMax(0, 0);
-
         // does not re-use instances like String... Maybe later?
+        MinMax m = new MinMax(0, 0);
         MinMax m2 = new MinMax(0, 0);
 
         assertEquals(m, m2);
@@ -48,21 +39,21 @@ public class BasicTest {
 
         record PositiveInt(int value) {
 
-            public PositiveInt(int value) {
-                this.value = 100;
-            }
-
-//            PositiveInt {
-//                // weird, the spec says:
-//                // To enforce the intended use of compact constructors,
-//                // it became a compile-time error to assign to any of the instance fields in the constructor body
-            // as of Java 15,
-//                // it seems the only thing we can NOT do is assign to "this.value" in the compact constructor
-//                if(value <= 0) {
-//                    value = 0;
-////                    throw new IllegalArgumentException("Value must be > 0");
-//                }
+//            public PositiveInt(int value) {
+//                this.value = 100;
 //            }
+
+            PositiveInt {
+                // weird, the spec says:
+                // To enforce the intended use of compact constructors,
+                // it became a compile-time error to assign to any of the instance fields in the constructor body
+
+                // it seems the only thing we can NOT do is assign to "this.value" in the compact constructor
+                if(value <= 0) {
+                    value = 0;
+//                    throw new IllegalArgumentException("Value must be > 0");
+                }
+            }
         }
 
         PositiveInt p = new PositiveInt(-1);
@@ -95,6 +86,7 @@ public class BasicTest {
 
         WordList list = new WordList(mutableWords);
 
+        // this correctly throws an exception
         assertThrows(UnsupportedOperationException.class, () -> list.words().clear());
 
     }
@@ -117,20 +109,15 @@ public class BasicTest {
 
         assertEquals(MyEnum.OTHER_THING, myInterface.thing());
 
-
+        // also new: an inner class can declare a member that is a record class
+        // To accomplish this,
+        // as of Java 16 an inner class can declare a member that is explicitly or implicitly static
         class MyInnerClass {
-
-            // an inner class can declare a member that is a record class
             public EnumWrapper enumWrapper;
-
-            // To accomplish this,
-            // as of Java 16 an inner class can declare a member that is explicitly or implicitly static
-//            public static String NAME = "name";
-
+            // public static String NAME = "name";
         }
 
     }
-
 
     @Test
     public void testReflection() {
@@ -142,7 +129,6 @@ public class BasicTest {
 
         assertEquals(1, Reflectable.class.getRecordComponents().length);
         assertEquals("component", Reflectable.class.getRecordComponents()[0].getName());
-
     }
 
 }

@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.thinkbigthings.demo.records.Functional.uncheck;
 import static org.thinkbigthings.demo.records.Try.*;
 
@@ -96,7 +97,9 @@ public class StreamTest {
         // which one won't be parsed? use this in your next coding interview
         List<String> dates = List.of("2021-06-21", "whoops", "2001-12-21");
 
-        // code reviewers hate this one simple trick
+        // sub-optimal approach...
+
+        // code reviewers hate this one weird trick
         try {
             dates.stream()
                     .map(uncheck(format::parse))
@@ -106,6 +109,8 @@ public class StreamTest {
             e.printStackTrace();
         }
 
+
+        // another approach
 
         // use the Try object to attempt every element in the stream
         // and save the exceptions and results to separate lists
@@ -125,21 +130,17 @@ public class StreamTest {
                 .collect(toList());
 
 
-        // use the Try object to attempt every element in the stream
-        // and save the exceptions and results in a single step
+        // better approach
 
-        // this works, but we have to look back at the collector to remember what the Boolean means
-        // and we'd still have to extract exceptions or results from the two lists
-        var attempts = dates.stream()
-                .map(tryCatch(format::parse))
-                .collect(partitioningBy(t -> t.result() != null));
+        record Results<R>(List<? extends Exception> exceptions, List<R> results) {}
 
-        record Results<T>(List<? extends Exception> exceptions, List<T> results) {}
-
-        // records make a great merger teeing operations
+        // records make a great merger for teeing operations
         Results<Date> c = dates.stream()
                 .map(tryCatch(format::parse))
                 .collect(teeing( toExceptions(), toResults(), Results::new));
+
+        assertEquals(1, c.exceptions().size());
+        assertEquals(2, c.results().size());
 
     }
 }

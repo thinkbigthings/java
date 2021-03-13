@@ -21,6 +21,7 @@ record Try<R>(Exception exception, R result) {
     public static <T, R> Function<T, Try<R>> tryCatch(CheckedFunction<T, R> function) {
         return t -> {
             try {
+                // require not null result, otherwise it is hard to tell if this Try is a result or an exception
                 R result = Objects.requireNonNull(function.apply(t));
                 return new Try<>(null, result);
             } catch (Exception ex) {

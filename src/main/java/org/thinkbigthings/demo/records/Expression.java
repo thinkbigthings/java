@@ -1,6 +1,6 @@
 package org.thinkbigthings.demo.records;
 
-sealed interface Expression {
+public sealed interface Expression permits Expression.IntExp, Expression.AddExp, Expression.SubtractExp {
 
     int value();
 

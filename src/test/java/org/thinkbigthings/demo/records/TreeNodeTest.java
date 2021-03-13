@@ -12,6 +12,7 @@ public class TreeNodeTest {
     @Test
     public void testASTWithSealedTypes() {
 
+        // (5+4) - 1 = 8
         Expression five = new IntExp(5);
         Expression four = new IntExp(4);
         Expression plus = new AddExp(five, four) ;

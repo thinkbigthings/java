@@ -44,9 +44,12 @@ public class BasicTest {
 //            }
 
             PositiveInt {
-                // weird, the spec says:
-                // To enforce the intended use of compact constructors,
-                // it became a compile-time error to assign to any of the instance fields in the constructor body
+                // weird, the JEP says:
+                // "To enforce the intended use of compact constructors,
+                // it became a compile-time error to assign to any of the instance fields in the constructor body"
+                // I suspect that statement is ONLY for the compact constructor and applies ONLY to this.instanceField
+                // but you can assign whatever you want to the passed in field which is then assigned to the instance field anyway
+                // and we can assign to the instance field directly in the canonical constructor.
 
                 // it seems the only thing we can NOT do is assign to "this.value" in the compact constructor
                 if(value <= 0) {
@@ -109,12 +112,11 @@ public class BasicTest {
 
         assertEquals(MyEnum.OTHER_THING, myInterface.thing());
 
-        // also new: an inner class can declare a member that is a record class
-        // To accomplish this,
-        // as of Java 16 an inner class can declare a member that is explicitly or implicitly static
+        // Also new: an inner class can declare a member that is a record class.
+        // To accomplish this: in Java 16 an inner class can declare a member that is explicitly or implicitly static
         class MyInnerClass {
             public EnumWrapper enumWrapper;
-            // public static String NAME = "name";
+            public static String NAME = "name";
         }
 
     }

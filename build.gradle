@@ -5,7 +5,7 @@ plugins {
 group 'org.thinkbigthings'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_15
 
 repositories {
     mavenCentral()

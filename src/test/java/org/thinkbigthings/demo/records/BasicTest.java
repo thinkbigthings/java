@@ -38,30 +38,16 @@ public class BasicTest {
     public void testValidatingConstructor() {
 
         record PositiveInt(int value) {
-
-//            public PositiveInt(int value) {
-//                this.value = 100;
-//            }
-
             PositiveInt {
-                // weird, the JEP says:
-                // "To enforce the intended use of compact constructors,
-                // it became a compile-time error to assign to any of the instance fields in the constructor body"
-                // I suspect that statement is ONLY for the compact constructor and applies ONLY to this.instanceField
-                // but you can assign whatever you want to the passed in field which is then assigned to the instance field anyway
-                // and we can assign to the instance field directly in the canonical constructor.
-
-                // it seems the only thing we can NOT do is assign to "this.value" in the compact constructor
+                // compact constructor is intended for validation
+                // we could also assign "value" here (but not "this.value")
                 if(value <= 0) {
-                    value = 0;
-//                    throw new IllegalArgumentException("Value must be > 0");
+                    throw new IllegalArgumentException("Value was "+ value);
                 }
             }
         }
 
-        PositiveInt p = new PositiveInt(-1);
-        int val = p.value();
-//        assertThrows(IllegalArgumentException.class, () -> new PositiveInt(-1));
+        assertThrows(IllegalArgumentException.class, () -> new PositiveInt(-1));
 
         assertEquals(1, new PositiveInt(1).value());
     }
@@ -72,13 +58,10 @@ public class BasicTest {
         // records are shallowly immutable
         record WordList(List<String> words) {
 
-            // we can assign in an overridden constructor, but not in a compact constructor
-//            public WordList(List<String> words) {
-//                this.words = Collections.unmodifiableList(words);
-//            }
-
-            public WordList {
-                words = Collections.unmodifiableList(words);
+            // we can assign to "this" in an overridden canonical constructor
+            // but not in the compact constructor
+            public WordList(List<String> words) {
+                this.words = Collections.unmodifiableList(words);
             }
         }
 
@@ -116,7 +99,7 @@ public class BasicTest {
         // To accomplish this: in Java 16 an inner class can declare a member that is explicitly or implicitly static
         class MyInnerClass {
             public EnumWrapper enumWrapper;
-            public static String NAME = "name";
+//            public static String NAME = "name";
         }
 
     }

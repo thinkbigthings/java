@@ -57,55 +57,46 @@ public class DtoTest {
         assertThrows(ValueInstantiationException.class, () -> mapper.readValue(json, ShortWord.class));
     }
 
+    // GSON has some issues, see https://github.com/google/gson/issues/1794
+    // GSON doesn't work with inline records, so need record declaration here
+    private static record Person(String firstName, String lastName) {  }
 
-//    @Test
-//    public void testGson() throws Exception {
-//
-//        String json = """
-//                {
-//                    "firstName": "Bilbo",
-//                    "lastName": "Baggins"
-//                }
-//                """;
-//
-//        record Person(@Expose String firstName, @Expose String lastName) {
-//            public Person() {
-//                this("", "");
-//            }
-//        }
-//
-//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//
-//        // Can't use GSON, see https://github.com/google/gson/issues/1794
-//        Person person = gson.fromJson(json, Person.class);
-//        String output = gson.toJson(new Person("Bilbo", "Baggins"));
-//
-//        class PersonDeserializer implements JsonDeserializer<Person> {
-//            @Override
-//            public Person deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-//                String s = json.getAsString();
-//                throw new RuntimeException("Not implemented");
-//            }
-//        }
-//
-//        class PersonInstanceCreator implements InstanceCreator<Person> {
-//            public Person createInstance(Type type) {
-//                return new Person("", "");
-//            }
-//        }
-//
-//        gson = new GsonBuilder()
-//                .setPrettyPrinting()
-//                .registerTypeAdapter(Person.class, new PersonDeserializer())
-//                .registerTypeAdapter(Person.class, new PersonInstanceCreator())
-//                .create();
-//
-//        person = gson.fromJson(json, Person.class);
-//        output = gson.toJson(new Person("Bilbo", "Baggins"));
-//
-//        assertEquals("Bilbo", person.firstName());
-//        assertEquals("Baggins", person.lastName());
-//    }
+    @Test
+    void testGson() {
+
+        String parsableJson = """
+                {
+                    "firstName": "bilbo",
+                    "lastName": "baggins"
+                }
+                """;
+
+        JsonDeserializer<Person> personDeserializer = (JsonElement json, Type typeOfT, JsonDeserializationContext context) -> {
+            JsonObject jObject = json.getAsJsonObject();
+            String firstName = jObject.get("firstName").getAsString();
+            String lastName = jObject.get("lastName").getAsString();
+            return new Person(firstName, lastName);
+        };
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Person.class, personDeserializer)
+                .create();
+
+        // Test serialize
+        Person bilbo = new Person("bilbo", "baggins");
+        final String personJson = gson.toJson(bilbo);
+        assertEquals("{\"firstName\":\"bilbo\",\"lastName\":\"baggins\"}", personJson);
+
+        // Test deserialize
+        final Person parsedPerson = gson.fromJson(parsableJson, Person.class);
+        assertEquals(bilbo, parsedPerson);
+        assertNotSame(bilbo, parsedPerson);
+
+        // test values
+        assertEquals(bilbo.firstName(), parsedPerson.firstName());
+        assertEquals(bilbo.lastName(), parsedPerson.lastName());
+
+    }
 
 
     // static class can't be defined inside method
@@ -119,7 +110,6 @@ public class DtoTest {
             }
         }
     }
-
 
     @Test
     @DisplayName("Record serialization")

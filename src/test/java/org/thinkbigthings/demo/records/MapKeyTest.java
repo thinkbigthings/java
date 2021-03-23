@@ -35,6 +35,8 @@ public class MapKeyTest {
         // The hashcode must be consistent.
         // Immutability is not STRICTLY necessary, but it sure helps!
 
+        // maybe this is mutable from being a class used in another part of the code
+        // and it was modified by the current method, another thread, etc...
         key1.setCompany("1234");
         h1 = key1.hashCode();
 

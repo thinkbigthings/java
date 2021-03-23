@@ -3,7 +3,6 @@ package org.thinkbigthings.demo.records;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.google.gson.*;
-import com.google.gson.annotations.Expose;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -104,7 +103,7 @@ public class DtoTest {
     static class PointClass implements Serializable {
         public float x, y;
         public PointClass() {}
-        public  PointClass(float x, float y) {
+        public PointClass(float x, float y) {
             if(x < 0 || y < 0) {
                 throw new IllegalArgumentException("points must be  > 0");
             }

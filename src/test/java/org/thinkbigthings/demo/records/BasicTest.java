@@ -99,7 +99,7 @@ public class BasicTest {
         // To accomplish this: in Java 16 an inner class can declare a member that is explicitly or implicitly static
         class MyInnerClass {
             public EnumWrapper enumWrapper;
-//            public static String NAME = "name";
+            public static String NAME = "name";
         }
 
     }

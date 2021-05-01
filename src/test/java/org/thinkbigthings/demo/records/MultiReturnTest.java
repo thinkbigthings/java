@@ -30,8 +30,8 @@ public class MultiReturnTest {
         // Of course we can compute this inline,
         // but records give us the option to structure our logic differently.
 
-        Statistics s = compute(1, 2, 3);
-        assertEquals(3, s.count());
+        Statistics stats = compute(1, 2, 3);
+        assertEquals(3, stats.count());
     }
 
 

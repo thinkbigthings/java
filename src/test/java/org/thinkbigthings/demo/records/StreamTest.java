@@ -135,12 +135,12 @@ public class StreamTest {
         record Results<R>(List<? extends Exception> exceptions, List<R> results) {}
 
         // records make a great merger for teeing operations
-        Results<Date> c = dates.stream()
+        Results<Date> results = dates.stream()
                 .map(tryCatch(format::parse))
                 .collect(teeing( toExceptions(), toResults(), Results::new));
 
-        assertEquals(1, c.exceptions().size());
-        assertEquals(2, c.results().size());
+        assertEquals(1, results.exceptions().size());
+        assertEquals(2, results.results().size());
 
     }
 }

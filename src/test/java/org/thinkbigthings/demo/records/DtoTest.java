@@ -150,6 +150,13 @@ public class DtoTest {
 
         try(var input  = new ObjectInputStream(new FileInputStream(serializedClass))) {
 
+            // what's wrong with traditional serialization?
+            // Ignores accessibility (private vs public)
+            // bypasses constructors,
+            // can have errors at runtime for non-serializable components (not checked by compiler),
+            // has "magic methods" (readObject etc),
+            // possible to create impossible objects
+
             // validation in the constructor is not called
             // the bytes could be modified to create an "impossible" object
             PointClass pc2 = (PointClass) input.readObject();

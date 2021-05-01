@@ -2,6 +2,7 @@ package org.thinkbigthings.demo.records;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -112,8 +113,9 @@ public class BasicTest {
         assertTrue(Reflectable.class.isRecord());
         assertFalse(this.getClass().isRecord());
 
-        assertEquals(1, Reflectable.class.getRecordComponents().length);
-        assertEquals("component", Reflectable.class.getRecordComponents()[0].getName());
+        RecordComponent[] recordMeta = Reflectable.class.getRecordComponents();
+        assertEquals(1, recordMeta.length);
+        assertEquals("component", recordMeta[0].getName());
     }
 
 }

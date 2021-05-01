@@ -16,6 +16,7 @@ public class MapKeyTest {
     @Test
     public void testBadMultiKeyMap() {
 
+
         Map<CustomMapKey, Date> employeeStartDates = new HashMap<>();
 
         CustomMapKey key1 = new CustomMapKey("123", "4567");
@@ -30,13 +31,6 @@ public class MapKeyTest {
         assertNotNull(employeeStartDates.get(key1));
 
 
-        // if the hashcode of key changes after we have put it into the map
-        // then its almost impossible to fetch the value back from map.
-        // The hashcode must be consistent.
-        // Immutability is not STRICTLY necessary, but it sure helps!
-
-        // maybe this is mutable from being a class used in another part of the code
-        // and it was modified by the current method, another thread, etc...
         key1.setCompany("1234");
         h1 = key1.hashCode();
 

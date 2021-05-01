@@ -4,16 +4,18 @@ public sealed interface Expression permits Expression.IntExp, Expression.AddExp,
 
     int value();
 
-    record IntExp(int value) implements Expression {
+    // "final" here is kind of unnecessary since records are already final
+    // but it gets rid of the IDE warning :)
+    final record IntExp(int value) implements Expression {
     }
 
-    record AddExp(Expression left, Expression right) implements Expression {
+    final record AddExp(Expression left, Expression right) implements Expression {
         public int value() {
             return left.value() + right.value();
         }
     }
 
-    record SubtractExp(Expression left, Expression right) implements Expression {
+    final record SubtractExp(Expression left, Expression right) implements Expression {
         public int value() {
             return left.value() - right.value();
         }

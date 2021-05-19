@@ -68,7 +68,7 @@ public class StreamTest {
                 new Charge(3,1),
                 new Charge(4,1));
 
-        // one idea to get the totals
+        // one idea to get the totals, but not clear later that these values are intended to go together
         double totalAmount = itemizedCharges.stream()
                 .map(Charge::amount)
                 .reduce(0.0, Double::sum);
@@ -119,6 +119,7 @@ public class StreamTest {
                 .map(tryCatch(format::parse))
                 .collect(toList());
 
+        // TODO wait until midnight and send this to someone's pager
         var exceptions = tries.stream()
                 .map(Try::exception)
                 .filter(Objects::nonNull)
@@ -132,15 +133,15 @@ public class StreamTest {
 
         // better approach
 
-        record Results<R>(List<? extends Exception> exceptions, List<R> results) {}
+        record ResultsAndExceptions<R>(List<R> results, List<? extends Exception> exceptions) {}
 
         // records make a great merger for teeing operations
-        Results<Date> results = dates.stream()
+        ResultsAndExceptions<Date> results = dates.stream()
                 .map(tryCatch(format::parse))
-                .collect(teeing( toExceptions(), toResults(), Results::new));
+                .collect(teeing( toResults(), toExceptions(), ResultsAndExceptions::new));
 
-        assertEquals(1, results.exceptions().size());
         assertEquals(2, results.results().size());
+        assertEquals(1, results.exceptions().size());
 
     }
 }

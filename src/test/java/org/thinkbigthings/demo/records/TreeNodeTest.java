@@ -14,7 +14,7 @@ public class TreeNodeTest {
 
         //      -
         //    /   \
-        //   +     8
+        //   +     1
         //  / \
         // 5   4
 

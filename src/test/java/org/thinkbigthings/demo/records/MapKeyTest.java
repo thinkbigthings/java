@@ -16,12 +16,13 @@ public class MapKeyTest {
     @Test
     public void testBadMultiKeyMap() {
 
-
+        // TODO Describe how equals and hashcode are used in the implementation of HashMap
         Map<CustomMapKey, Date> employeeStartDates = new HashMap<>();
 
         CustomMapKey key1 = new CustomMapKey("123", "4567");
         CustomMapKey key2 = new CustomMapKey("1234", "567");
 
+        // TODO Why are these the same value?
         int h1 = key1.hashCode();
         int h2 = key2.hashCode();
 
@@ -30,12 +31,13 @@ public class MapKeyTest {
 
         assertNotNull(employeeStartDates.get(key1));
 
-
+        // TODO why did the hashcode change? Is this an acceptable thing to do?
         key1.setCompany("1234");
         h1 = key1.hashCode();
 
         assertEquals(2, employeeStartDates.size());
 
+        // TODO the map knows key1 is there... why are we getting null? How could we fix this?
         assertNull(employeeStartDates.get(key1));
 
     }

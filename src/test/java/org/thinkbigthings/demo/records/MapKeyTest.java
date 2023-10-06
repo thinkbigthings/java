@@ -3,10 +3,7 @@ package org.thinkbigthings.demo.records;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

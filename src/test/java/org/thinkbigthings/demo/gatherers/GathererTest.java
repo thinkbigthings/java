@@ -19,6 +19,7 @@ import static java.util.stream.Gatherers.scan;
  * Ideas for Gatherers:
  * https://openjdk.org/jeps/473
  * https://www.reddit.com/r/java/comments/14le6tw/gatherers/
+ * https://www.reddit.com/r/java/comments/1fyzynb/stream_gatherers_jep_485/
  *
  * https://cr.openjdk.org/~vklang/Gatherers.html
  *
@@ -117,23 +118,87 @@ public class GathererTest {
 
         System.out.println(freqMap);
 
-        record Histogram(SortedMap<Integer, Integer> map, int binSize) {
+        record Histogram(NavigableMap<Integer, Integer> map, int binSize) {
+
             public Histogram(int binSize) {
-                this(new TreeMap<Integer, Integer>(), binSize);
+                this(new TreeMap<>(), binSize);
             }
-            public Histogram addValue(Integer value) {
-                int bin =  (value / binSize) * binSize; // get the lowest bin that is a multiple of binSize
+
+            public Histogram putValue(Integer value) {
+                int bin = map.floorKey(value);
+//                int bin =  (value / binSize) * binSize; // get the lowest bin that is a multiple of binSize
                 map.put(bin, map.getOrDefault(bin, 0) + 1);
+                return this;
+            }
+
+            public Histogram setUnfilledBins() {
+                int minBin = map.firstKey();
+                int maxBin = map.lastKey();
+                IntStream.iterate(minBin, b -> b <= maxBin, b -> b + binSize).forEach(b -> map.putIfAbsent(b,0));
                 return this;
             }
         }
 
         // see if we can construct a set of histogram bins for a given set of data
-        var hist = Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9)
-                .gather(fold(() -> new Histogram(2), Histogram::addValue))
+        var hist = Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9,13)
+                .gather(fold(() -> new Histogram(2), Histogram::putValue))
+                .map(Histogram::setUnfilledBins)
                 .toList();
 
         System.out.println(hist);
+    }
+
+    record Range(int min, int max) { }
+
+    static class RangeGatheringState {
+
+        private int min = Integer.MAX_VALUE;
+        private int max = Integer.MIN_VALUE;
+
+        public boolean integrate(Integer value) {
+            min = Math.min(min, value);
+            max = Math.max(max, value);
+            return true;
+        }
+
+        public boolean hasGatheredValues() {
+            return ! (min == Integer.MAX_VALUE && max == Integer.MIN_VALUE);
+        }
+
+        public Optional<Range> range() {
+            return hasGatheredValues() ? Optional.of(new Range(min, max)) : Optional.empty();
+        }
+    }
+
+    @Test
+    public void testMinMax() {
+
+        // why not pass an instance of these classes to the gatherer instead of generators and functions?
+        // this allows us to use create multiple gatherers for the same stream if it is parallelized
+        // the system will create a new instance of the state for each thread
+
+        // if there are no elements found, the finisher is still called
+        // downstream is not used by the integrator if you need to see all elements before you can continue the stream
+        // integrator returns false if it wants to short circuit
+        Gatherer<Integer, RangeGatheringState, Range> minMax = Gatherer.ofSequential(
+                RangeGatheringState::new,
+                (state, element, downstream) -> state.integrate(element),
+                (state, downstream) -> state.range().ifPresent(downstream::push)
+        );
+
+        // see if we can construct a set of histogram bins for a given set of data
+        var hist = Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9,13)
+                .gather(minMax)
+                .toList();
+
+        System.out.println(hist);
+
+        hist = IntStream.of().boxed()
+                .gather(minMax)
+                .toList();
+
+        System.out.println(hist);
+
     }
 
     @Test
@@ -150,6 +215,7 @@ public class GathererTest {
         var freqMap = Arrays.stream("gatherer".split(""))
                 .gather(scan(HashMap<String, Integer>::new, (map, str) -> {
                     // Create a new map based on the previous map to avoid mutating the original one
+                    // each resulting map is emitted separately
                     HashMap<String, Integer> newMap = new HashMap<>(map);
                     newMap.put(str, newMap.getOrDefault(str, 0) + 1);
                     return newMap;
@@ -200,12 +266,10 @@ public class GathererTest {
 
         // how is this different from simply using a collector and then .stream() ?
         // advantage is not having to create a new stream?
-        // maybe this is more useful for other collectors?
-
-        // non-terminal operations are more of a builder pattern that don't actually evaluate anything
-        // collect is a terminal operation that evaluates the stream.
-        // but we're using the collector's internals which will accumulate the whole stream anyway,
-        // so I'm still not sure what this idea buys us
+        // maybe this is more useful for other collectors or for other gatherers?
+        // the gatherer can short circuit the stream if it wants to, but a collector MUST consume the whole stream
+        // the gatherer MIGHT consume the whole stream, but it doesn't HAVE to, depending on the use case.
+        // if it always consumes the whole stream, then yes it acts the same as a collector
 
 
     }

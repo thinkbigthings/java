@@ -12,6 +12,7 @@ import java.util.stream.*;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Gatherers.fold;
 import static java.util.stream.Gatherers.scan;
+import static java.util.stream.IntStream.iterate;
 
 
 /**
@@ -23,7 +24,7 @@ import static java.util.stream.Gatherers.scan;
  *
  * https://cr.openjdk.org/~vklang/Gatherers.html
  *
- * https://www.youtube.com/watch?v=8fMFa6OqlY8
+ * https://www.youtube.com/watch?v=8fMFa6OqlY8  (implementations pick up at 21:45)
  *
  * Nikolai explains what it is https://www.youtube.com/watch?v=epgJm2dZTSg
  * Nikolai shows how to use it https://www.youtube.com/watch?v=pNQ5OXMXDbY
@@ -49,8 +50,9 @@ public class GathererTest {
                 .forEach(System.out::println);
     }
 
-    private double average(List<Double> window) {
-        return window.stream().flatMapToDouble(DoubleStream::of).average().orElseThrow();
+    // one of the upcoming gatherer libraries has a rolling average gatherer, I think
+    private Optional<Double> average(List<Double> window) {
+        return window.stream().flatMapToDouble(DoubleStream::of).average().stream().boxed().findFirst();
     }
 
     @Test
@@ -75,6 +77,7 @@ public class GathererTest {
         var smoothedValues = noisyValues.stream()
                 .gather(Gatherers.windowSliding(5))
                 .map(this::average)
+                .flatMap(Optional::stream)
                 .toList();
 
 
@@ -126,7 +129,6 @@ public class GathererTest {
 
             public Histogram putValue(Integer value) {
                 int bin = map.floorKey(value);
-//                int bin =  (value / binSize) * binSize; // get the lowest bin that is a multiple of binSize
                 map.put(bin, map.getOrDefault(bin, 0) + 1);
                 return this;
             }
@@ -150,56 +152,80 @@ public class GathererTest {
 
     record Range(int min, int max) { }
 
+    // not thread safe, should only be used with a sequential stream
     static class RangeGatheringState {
 
         private int min = Integer.MAX_VALUE;
         private int max = Integer.MIN_VALUE;
+        private boolean hasGatheredValues = false;
 
         public boolean integrate(Integer value) {
             min = Math.min(min, value);
             max = Math.max(max, value);
+            hasGatheredValues = true;
             return true;
         }
 
-        public boolean hasGatheredValues() {
-            return ! (min == Integer.MAX_VALUE && max == Integer.MIN_VALUE);
-        }
-
         public Optional<Range> range() {
-            return hasGatheredValues() ? Optional.of(new Range(min, max)) : Optional.empty();
+            return hasGatheredValues ? Optional.of(new Range(min, max)) : Optional.empty();
         }
+    }
+
+    private Function<Range, Stream<Integer>> toHistogramBins(int binSize) {
+        return range -> {
+            int lowestBin =  (range.min() / binSize) * binSize;
+            return iterate(lowestBin, b -> b <= range.max(), b -> b + binSize).boxed();
+        };
     }
 
     @Test
     public void testMinMax() {
 
-        // why not pass an instance of these classes to the gatherer instead of generators and functions?
-        // this allows us to use create multiple gatherers for the same stream if it is parallelized
-        // the system will create a new instance of the state for each thread
+        // why not pass an instance of these classes to the gatherer instead of these generators and functions?
+        // this allows us to create multiple gatherers for the same stream if it is parallelized
+        // the runtime will create a new instance of the state for each thread
+
+        final int binSize = 2;
 
         // if there are no elements found, the finisher is still called
         // downstream is not used by the integrator if you need to see all elements before you can continue the stream
-        // integrator returns false if it wants to short circuit
-        Gatherer<Integer, RangeGatheringState, Range> minMax = Gatherer.ofSequential(
+        // integrator returns false if it wants to short circuit (e.g. Stream.limit())
+        Gatherer<Integer, RangeGatheringState, Integer> histogramBins = Gatherer.ofSequential(
                 RangeGatheringState::new,
-                (state, element, downstream) -> state.integrate(element),
-                (state, downstream) -> state.range().ifPresent(downstream::push)
+                (state, element, _) -> state.integrate(element),
+                (state, downstream) -> state.range()
+                        .map(toHistogramBins(binSize))
+                        .orElse(Stream.empty())
+                        .forEach(downstream::push)
         );
 
         // see if we can construct a set of histogram bins for a given set of data
         var hist = Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9,13)
-                .gather(minMax)
+                .gather(histogramBins)
                 .toList();
 
         System.out.println(hist);
 
-        hist = IntStream.of().boxed()
-                .gather(minMax)
-                .toList();
+        // TODO turn these into unit tests, and test case of empty inputs
+//        hist = IntStream.of().boxed()
+//                .gather(minMax)
+//                .findFirst();
+//
+//        System.out.println(hist);
 
-        System.out.println(hist);
+
+//        Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9,13)
+//                .gather(minMax)
+//                .findFirst();
+//        var bins = hist.map(range -> histogramBinsFromRange(range,3))
+//                .orElse(Stream.empty())
+//                .toList();
+//
+//        System.out.println(bins);
+
 
     }
+
 
     @Test
     public void testGatherScan() {

@@ -1,5 +1,6 @@
 package org.thinkbigthings.demo.gatherers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -120,6 +121,11 @@ public class GathererTest {
                 .orElseGet(HashMap::new);
 
         System.out.println(freqMap);
+    }
+
+    @Disabled("This is a work in progress")
+    @Test
+    public void testHistogram() {
 
         record Histogram(NavigableMap<Integer, Integer> map, int binSize) {
 
@@ -149,6 +155,8 @@ public class GathererTest {
 
         System.out.println(hist);
     }
+
+
 
     record Range(int min, int max) { }
 

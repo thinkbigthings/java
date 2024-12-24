@@ -1,6 +1,5 @@
 package org.thinkbigthings.demo.gatherers;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -122,40 +121,6 @@ public class GathererTest {
 
         System.out.println(freqMap);
     }
-
-    @Disabled("This is a work in progress")
-    @Test
-    public void testHistogram() {
-
-        record Histogram(NavigableMap<Integer, Integer> map, int binSize) {
-
-            public Histogram(int binSize) {
-                this(new TreeMap<>(), binSize);
-            }
-
-            public Histogram putValue(Integer value) {
-                int bin = map.floorKey(value);
-                map.put(bin, map.getOrDefault(bin, 0) + 1);
-                return this;
-            }
-
-            public Histogram setUnfilledBins() {
-                int minBin = map.firstKey();
-                int maxBin = map.lastKey();
-                IntStream.iterate(minBin, b -> b <= maxBin, b -> b + binSize).forEach(b -> map.putIfAbsent(b,0));
-                return this;
-            }
-        }
-
-        // see if we can construct a set of histogram bins for a given set of data
-        var hist = Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9,13)
-                .gather(fold(() -> new Histogram(2), Histogram::putValue))
-                .map(Histogram::setUnfilledBins)
-                .toList();
-
-        System.out.println(hist);
-    }
-
 
 
     record Range(int min, int max) { }

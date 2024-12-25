@@ -164,7 +164,6 @@ public class GathererTest {
     }
 
 
-
     record Range(int min, int max) { }
 
     // not thread safe, should only be used with a sequential stream

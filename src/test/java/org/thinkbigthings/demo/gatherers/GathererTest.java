@@ -1,6 +1,5 @@
 package org.thinkbigthings.demo.gatherers;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -14,6 +13,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Gatherers.fold;
 import static java.util.stream.Gatherers.scan;
 import static java.util.stream.IntStream.iterate;
+import static org.thinkbigthings.demo.gatherers.FunctionalFinders.toExactlyOne;
 
 
 /**
@@ -123,37 +123,44 @@ public class GathererTest {
         System.out.println(freqMap);
     }
 
-    @Disabled("This is a work in progress")
     @Test
     public void testHistogram() {
 
-        record Histogram(NavigableMap<Integer, Integer> map, int binSize) {
+        class Histogram {
+
+            private final int binSize;
+            private final NavigableMap<Integer, Integer> map;
 
             public Histogram(int binSize) {
-                this(new TreeMap<>(), binSize);
+                this.binSize = binSize;
+                this.map = new TreeMap<>();
             }
 
             public Histogram putValue(Integer value) {
-                int bin = map.floorKey(value);
+                int bin = value - (value % binSize);
                 map.put(bin, map.getOrDefault(bin, 0) + 1);
                 return this;
             }
 
-            public Histogram setUnfilledBins() {
+            public NavigableMap<Integer, Integer> map() {
+                setUnfilledBins();
+                return map;
+            }
+
+            private void setUnfilledBins() {
                 int minBin = map.firstKey();
                 int maxBin = map.lastKey();
                 IntStream.iterate(minBin, b -> b <= maxBin, b -> b + binSize).forEach(b -> map.putIfAbsent(b,0));
-                return this;
             }
         }
 
-        // see if we can construct a set of histogram bins for a given set of data
+        // construct a set of histogram bins for a given set of data
+        // the values map to a single element - the Histogram - which can then be extracted from the stream
         var hist = Stream.of(1,2,3,4,5,4,5,6,6,6,7,7,8,9,13)
                 .gather(fold(() -> new Histogram(2), Histogram::putValue))
-                .map(Histogram::setUnfilledBins)
-                .toList();
+                .collect(toExactlyOne());
 
-        System.out.println(hist);
+        System.out.println(hist.map());
     }
 
 

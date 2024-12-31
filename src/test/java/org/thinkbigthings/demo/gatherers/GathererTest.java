@@ -143,15 +143,13 @@ public class GathererTest {
             }
 
             public NavigableMap<Integer, Integer> map() {
-                setUnfilledBins();
-                return map;
-            }
-
-            private void setUnfilledBins() {
+                // set unfilled bins
                 int minBin = map.firstKey();
                 int maxBin = map.lastKey();
                 IntStream.iterate(minBin, b -> b <= maxBin, b -> b + binSize).forEach(b -> map.putIfAbsent(b,0));
+                return new TreeMap<>(map);
             }
+
         }
 
         // construct a set of histogram bins for a given set of data
@@ -311,6 +309,12 @@ public class GathererTest {
         // the gatherer MIGHT consume the whole stream, but it doesn't HAVE to, depending on the use case.
         // if it always consumes the whole stream, then yes it acts the same as a collector
 
+        // the semantics are a little different. A gatherer is a stream operation, a collector is a terminal operation.
+        // So while you might functionally be able to do the same thing, the intent is different.
+
+        // Also a collector is N to 1, a gatherer can be N to M, 1 to N, N to 1, or 1 to 1.
+        // A gatherer is a generalization of a collector, so overlaps in functionality for that one specific case
+        // but a gatherer can do so much more.
 
     }
 }

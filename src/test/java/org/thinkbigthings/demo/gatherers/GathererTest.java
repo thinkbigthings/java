@@ -16,21 +16,6 @@ import static java.util.stream.IntStream.iterate;
 import static org.thinkbigthings.demo.gatherers.FunctionalFinders.toExactlyOne;
 
 
-/**
- *
- * Ideas for Gatherers:
- * https://openjdk.org/jeps/473
- * https://www.reddit.com/r/java/comments/14le6tw/gatherers/
- * https://www.reddit.com/r/java/comments/1fyzynb/stream_gatherers_jep_485/
- *
- * https://cr.openjdk.org/~vklang/Gatherers.html
- *
- * https://www.youtube.com/watch?v=8fMFa6OqlY8  (implementations pick up at 21:45)
- *
- * Nikolai explains what it is https://www.youtube.com/watch?v=epgJm2dZTSg
- * Nikolai shows how to use it https://www.youtube.com/watch?v=pNQ5OXMXDbY
- *
- */
 public class GathererTest {
 
     // static method that returns a Gatherer, this Gatherer implements a stream map
@@ -311,6 +296,7 @@ public class GathererTest {
 
         // the semantics are a little different. A gatherer is a stream operation, a collector is a terminal operation.
         // So while you might functionally be able to do the same thing, the intent is different.
+        // not to mention, evaluation begins only when a terminal operation is invoked
 
         // Also a collector is N to 1, a gatherer can be N to M, 1 to N, N to 1, or 1 to 1.
         // A gatherer is a generalization of a collector, so overlaps in functionality for that one specific case
